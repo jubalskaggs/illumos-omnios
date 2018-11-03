@@ -54,31 +54,91 @@
 #define VIRTIO_SCSI_S_HEAD                  2
 #define VIRTIO_SCSI_S_ACA                   3
 
+/* from solaris one */
+#define VIRTIO_SCSI_CDB_SIZE                32
+#define	VIRTIO_SCSI_SENSE_SIZE              96
+#define VIRTIO_SCSI_BUFFER_ALLOCATED        0x1
+#define VIRTIO_SCSI_BUFFER_FREE             0x2
+
 #ifndef __packed
 #define __packed __attribute__((packed))
 #endif
 
-/* Request header structure */
-struct virtio_scsi_req_hdr {
-    uint8_t		lun[8];
-    uint64_t	id;
-    uint8_t		task_attr;
-    uint8_t		prio;
-    uint8_t		crn;
-    uint8_t		cdb[32];
-} __packed;
-/* Followed by data-out. */
+// TODO: [jubal] kill these, they're now vioscsi_cmd_req and vioscsi_cmd_resp
+///* Request header structure */
+//struct virtio_scsi_req_hdr {
+//    uint8_t		lun[8];
+//    uint64_t	id;
+//    uint8_t		task_attr;
+//    uint8_t		prio;
+//    uint8_t		crn;
+//    uint8_t		cdb[32];
+//} __packed;
+///* Followed by data-out. */
 
-/* Response header structure */
-struct virtio_scsi_res_hdr {
-    uint32_t	sense_len;
-    uint32_t	residual;
-    uint16_t	status_qualifier;
-    uint8_t		status;
-    uint8_t		response;
-    uint8_t		sense[96];
+///* Response header structure */
+//struct virtio_scsi_res_hdr {
+//    uint32_t	sense_len;
+//    uint32_t	residual;
+//    uint16_t	status_qualifier;
+//    uint8_t		status;
+//    uint8_t		response;
+//    uint8_t		sense[96];
+//} __packed;
+///* Followed by data-in. */
+
+
+struct vioscsi_cmd_req {
+    uint8_t lun[8];                                             /* logical unit number */
+    uint64_t tag;                                               /* command identifier */
+    uint8_t	task_attr;                                          /* task attribute */
+    uint8_t	prio;
+    uint8_t crn;
+    uint8_t cdb[VIRTIO_SCSI_CDB_SIZE];
+} __packed;
+
+/* virtio SCSI response header structure, followed by sense data and data-in */
+struct vioscsi_cmd_resp {
+    uint32_t sense_len;                                         /* Sense data length */
+    uint32_t res_id;                                            /* Residual bytes in data buffer */
+    uint16_t status_qualifier;                                  /* status qualifier */
+    uint8_t	status;                                             /* command completion status */
+    uint8_t response;                                           /* response values */
+    uint8_t sense[VIRTIO_SCSI_SENSE_SIZE];
 } __packed;
 /* Followed by data-in. */
+
+/*Task managment request */
+struct vioscsi_ctrl_tmf_req {
+    uint32_t type;
+    uint32_t subtype;
+    uint8_t  lun[8];
+    uint64_t tag;
+} __packed;
+
+struct vioscsi_ctrl_tmf_resp {
+    uint8_t response;
+} __packed;
+
+/* asynchronous notification query/subscription */
+struct vioscsi_ctrl_an_req {
+    uint32_t type;
+    uint8_t lun[8];
+    uint32_t event_requested;
+} __packed;
+
+struct vioscsi_ctrl_an_resp {
+    uint32_t event_actual;
+    uint8_t	response;
+} __packed;
+
+struct vioscsi_event {
+    uint32_t event;
+    uint8_t lun[8];
+    uint32_t reason;
+} __packed;
+
+
 
 
 

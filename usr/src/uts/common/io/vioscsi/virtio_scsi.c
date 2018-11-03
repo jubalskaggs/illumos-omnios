@@ -21,10 +21,7 @@
 #include <io/virtio/virtiovar.h>
 #include <io/virtio/virtioreg.h>
 
-/*
-#include <io/vioscsi/virtio_scsi.h>
-#include <io/vioscsi/virtio_scsivar.h>
-*/
+
 
 /**
  * Virtio Doc:
@@ -204,71 +201,74 @@ fffffffffbc7ac00 unix:_locore_start+90 ()
   * ----------------------------------------------------------------------------------------
   * BEGIN DEFINES
   */
-#define VIRTIO_SCSI_CDB_SIZE                    32
-#define	VIRTIO_SCSI_SENSE_SIZE                  96
 
-/* Feature bits */
-#define VIRTIO_SCSI_F_INOUT                     (0x1 << 0)
-#define VIRTIO_SCSI_F_HOTPLUG                   (0x1 << 1)
+// use these instead of the below
+#include <io/vioscsi/virtio_scsi.h>
 
-/* registers offset in bytes */
-#define VIRTIO_SCSI_CFG_NUM_QUEUES              0
-#define VIRTIO_SCSI_CFG_SEG_MAX                 4
-#define VIRTIO_SCSI_CFG_MAX_SECTORS             8
-#define VIRTIO_SCSI_CFG_CMD_PER_LUN             12
-#define VIRTIO_SCSI_CFG_EVI_SIZE                16
-#define VIRTIO_SCSI_CFG_SENSE_SIZE              20
-#define VIRTIO_SCSI_CFG_CDB_SIZE                24
-#define VIRTIO_SCSI_CFG_MAX_CHANNEL             28
-#define VIRTIO_SCSI_CFG_MAX_TARGET              32
-#define VIRTIO_SCSI_CFG_MAX_LUN                 36
+//#include <io/vioscsi/virtio_scsivar.h>
 
-/* response codes */
-#define VIRTIO_SCSI_S_OK                        0
-#define VIRTIO_SCSI_S_FUNCTION_COMPLETED        0
-#define VIRTIO_SCSI_S_OVERRUN                   1
-#define VIRTIO_SCSI_S_ABORTED                   2
-#define VIRTIO_SCSI_S_BAD_TARGET                3
-#define VIRTIO_SCSI_S_RESET                     4
-#define VIRTIO_SCSI_S_BUSY                      5
-#define VIRTIO_SCSI_S_TRANSPORT_FAILURE         6
-#define VIRTIO_SCSI_S_TARGET_FAILURE            7
-#define VIRTIO_SCSI_S_NEXUS_FAILURE             8
-#define VIRTIO_SCSI_S_FAILURE                   9
-#define VIRTIO_SCSI_S_FUNCTION_SUCCEEDED        10
-#define VIRTIO_SCSI_S_FUNCTION_REJECTED         11
-#define VIRTIO_SCSI_S_INCORRECT_LUN             12
 
-/* Controlq type codes */
-#define VIRTIO_SCSI_T_TMF                       0
-#define VIRTIO_SCSI_T_AN_QUERY                  1
-#define VIRTIO_SCSI_T_AN_SUBSCRIBE              2
+///* Feature bits */
+//#define VIRTIO_SCSI_F_INOUT                     (0x1 << 0)
+//#define VIRTIO_SCSI_F_HOTPLUG                   (0x1 << 1)
 
-/* events */
-#define VIRTIO_SCSI_T_EVENTS_MISSED             0x80000000
-#define VIRTIO_SCSI_T_NO_EVENT                  0
-#define VIRTIO_SCSI_T_TRANSPORT_RESET           1
-#define VIRTIO_SCSI_T_ASYNC_NOTIFY              2
+///* registers offset in bytes */
+//#define VIRTIO_SCSI_CFG_NUM_QUEUES              0
+//#define VIRTIO_SCSI_CFG_SEG_MAX                 4
+//#define VIRTIO_SCSI_CFG_MAX_SECTORS             8
+//#define VIRTIO_SCSI_CFG_CMD_PER_LUN             12
+//#define VIRTIO_SCSI_CFG_EVI_SIZE                16
+//#define VIRTIO_SCSI_CFG_SENSE_SIZE              20
+//#define VIRTIO_SCSI_CFG_CDB_SIZE                24
+//#define VIRTIO_SCSI_CFG_MAX_CHANNEL             28
+//#define VIRTIO_SCSI_CFG_MAX_TARGET              32
+//#define VIRTIO_SCSI_CFG_MAX_LUN                 36
 
-#define VIOSCSI_MAX_TARGET                      256
+///* response codes */
+//#define VIRTIO_SCSI_S_OK                        0
+//#define VIRTIO_SCSI_S_FUNCTION_COMPLETED        0
+//#define VIRTIO_SCSI_S_OVERRUN                   1
+//#define VIRTIO_SCSI_S_ABORTED                   2
+//#define VIRTIO_SCSI_S_BAD_TARGET                3
+//#define VIRTIO_SCSI_S_RESET                     4
+//#define VIRTIO_SCSI_S_BUSY                      5
+//#define VIRTIO_SCSI_S_TRANSPORT_FAILURE         6
+//#define VIRTIO_SCSI_S_TARGET_FAILURE            7
+//#define VIRTIO_SCSI_S_NEXUS_FAILURE             8
+//#define VIRTIO_SCSI_S_FAILURE                   9
+//#define VIRTIO_SCSI_S_FUNCTION_SUCCEEDED        10
+//#define VIRTIO_SCSI_S_FUNCTION_REJECTED         11
+//#define VIRTIO_SCSI_S_INCORRECT_LUN             12
 
-/*reasons of reset event */
-#define VIRTIO_SCSI_EVT_RESET_HARD              0
-#define VIRTIO_SCSI_EVT_RESET_RESCAN            1
-#define VIRTIO_SCSI_EVT_RESET_REMOVED           2
+///* Controlq type codes */
+//#define VIRTIO_SCSI_T_TMF                       0
+//#define VIRTIO_SCSI_T_AN_QUERY                  1
+//#define VIRTIO_SCSI_T_AN_SUBSCRIBE              2
 
-#define VIRTIO_SCSI_BUFFER_ALLOCATED            0x1
-#define VIRTIO_SCSI_BUFFER_FREE                 0x2
+///* events */
+//#define VIRTIO_SCSI_T_EVENTS_MISSED             0x80000000
+//#define VIRTIO_SCSI_T_NO_EVENT                  0
+//#define VIRTIO_SCSI_T_TRANSPORT_RESET           1
+//#define VIRTIO_SCSI_T_ASYNC_NOTIFY              2
 
-/* new from fbsd */
-#define VIRTIO_SCSI_S_SIMPLE                    0
-#define VIRTIO_SCSI_S_ORDERED                   1
-#define VIRTIO_SCSI_S_HEAD                      2
-#define VIRTIO_SCSI_S_ACA                       3
+//#define VIOSCSI_MAX_TARGET                      256
 
-#ifndef __packed
-#define __packed __attribute__((packed))
-#endif
+///*reasons of reset event */
+//#define VIRTIO_SCSI_EVT_RESET_HARD              0
+//#define VIRTIO_SCSI_EVT_RESET_RESCAN            1
+//#define VIRTIO_SCSI_EVT_RESET_REMOVED           2
+
+
+
+///* new from fbsd */
+//#define VIRTIO_SCSI_S_SIMPLE                    0
+//#define VIRTIO_SCSI_S_ORDERED                   1
+//#define VIRTIO_SCSI_S_HEAD                      2
+//#define VIRTIO_SCSI_S_ACA                       3
+
+//#ifndef __packed
+//#define __packed __attribute__((packed))
+//#endif
 
 /**
   * END DEFINES
@@ -289,54 +289,7 @@ fffffffffbc7ac00 unix:_locore_start+90 ()
  * BEGIN DATA STRUCTURES
  */
 /* virtio SCSI command request */
-struct vioscsi_cmd_req {
-    uint8_t lun[8];                                             /* logical unit number */
-    uint64_t tag;                                               /* command identifier */
-    uint8_t	task_attr;                                          /* task attribute */
-    uint8_t	prio;
-    uint8_t crn;
-    uint8_t cdb[VIRTIO_SCSI_CDB_SIZE];
-} __packed;
 
-/* virtio SCSI response, followed by sense data and data-in */
-struct vioscsi_cmd_resp {
-    uint32_t sense_len;                                         /* Sense data length */
-    uint32_t res_id;                                            /* Residual bytes in data buffer */
-    uint16_t status_qualifier;                                  /* status qualifier */
-    uint8_t	status;                                             /* command completion status */
-    uint8_t response;                                           /* response values */
-    uint8_t sense[VIRTIO_SCSI_SENSE_SIZE];
-} __packed;
-
-/*Task managment request */
-struct vioscsi_ctrl_tmf_req {
-    uint32_t type;
-    uint32_t subtype;
-    uint8_t  lun[8];
-    uint64_t tag;
-} __packed;
-
-struct vioscsi_ctrl_tmf_resp {
-    uint8_t response;
-} __packed;
-
-/* asynchronous notification query/subscription */
-struct vioscsi_ctrl_an_req {
-    uint32_t type;
-    uint8_t lun[8];
-    uint32_t event_requested;
-} __packed;
-
-struct vioscsi_ctrl_an_resp {
-    uint32_t event_actual;
-    uint8_t	response;
-} __packed;
-
-struct vioscsi_event {
-    uint32_t event;
-    uint8_t lun[8];
-    uint32_t reason;
-} __packed;
 
 struct vioscsi_buffer {
     uint8_t	state;                      /* state of the buffer - allocated/free */
@@ -385,7 +338,7 @@ struct vioscsi_softc {
     uint32_t                    sc_max_seg;
     /* maximal number of requests */
     uint32_t                    sc_max_req;
-    struct vioscsi_ld           sc_ld[VIOSCSI_MAX_TARGET];
+    struct vioscsi_ld           sc_ld[VIRTIO_SCSI_CONFIG_MAX_TARGET];
     struct vioscsi_buffer       event_buffers[4];
 };
 
@@ -641,12 +594,6 @@ static int vioscsi_tran_setcap(struct scsi_address *ap, char *cap, int value, in
 
 // ****************************** NOT YET -- DONE?  Tran_start sends us into a loop never returning.
 // helpers for vioscsi_tran_start
-/**
- * @brief vioscsi_intr_handler
- * @param arg1
- * @param arg2
- * @return
- */
 uint_t vioscsi_intr_handler(caddr_t arg1, caddr_t arg2) {
     printf("%s: called\n", __func__);
 
@@ -738,213 +685,7 @@ static int vioscsi_register_ints(struct vioscsi_softc *sc) {
     return (ret);
 }
 
-/**
- * @brief vioscsi_tran_start
- * @param ap
- * @param pkt
- * @return
- *
-
-TRAN_START(9E)                 Driver Entry Points                TRAN_START(9E)
-
-
-NAME
-
-       tran_start - request to transport a SCSI command
-
-SYNOPSIS
-
-       #include <sys/scsi/scsi.h>
-
-
-       int prefixtran_start(struct scsi_address *ap,
-            struct scsi_pkt *pkt);
-
-
-INTERFACE LEVEL
-
-       Solaris architecture specific (Solaris DDI).
-
-PARAMETERS
-
-       pkt
-               Pointer to the  scsi_pkt(9S) structure that is about to be
-               transferred.
-
-
-       ap
-               Pointer to a scsi_address(9S) structure.
-
-
-DESCRIPTION
-
-       The  tran_start() vector in the  scsi_hba_tran(9S) structure must be
-       initialized during the HBA driver's attach(9E) to point to an HBA entry
-       point to be called when a target driver calls scsi_transport(9F).
-
-
-       tran_start() must perform the necessary operations on the HBA hardware to
-       transport the SCSI command in the  pkt structure to the target/logical
-       unit device specified in the  ap structure.
-
-
-       If the flag  FLAG_NOINTR is set in  pkt_flags in  pkt, tran_start()
-       should not return until the command has been completed. The command
-       completion callback pkt_comp in  pkt must not be called for commands with
-       FLAG_NOINTR set, since the return is made directly to the function
-       invoking scsi_transport(9F).
-
-
-       When the flag  FLAG_NOINTR is not set,  tran_start() must queue the
-       command for execution on the hardware and return immediately.  The member
-       pkt_comp in  pkt indicates a callback routine to be called upon command
-       completion.
-
-
-       Refer to  scsi_pkt(9S) for other bits in  pkt_flags for which the HBA
-       driver may need to adjust how the command is managed.
-
-
-       If the  auto_rqsense capability has been set, and the status length
-       allocated in  tran_init_pkt(9E) is greater than or equal to sizeof(struct
-       scsi_arq_status), automatic request sense is enabled for this  pkt. If
-       the command terminates with a Check Condition, the HBA driver must
-       arrange for a Request Sense command to be transported to that
-       target/logical unit, and the members of the  scsi_arq_status structure
-       pointed to by  pkt_scbp updated with the results of this Request Sense
-       command before the HBA driver completes the command pointed by pkt.
-
-
-       The member  pkt_time in  pkt is the maximum number of seconds in which
-       the command should complete. Timeout starts when the command is
-       transmitted on the SCSI bus. A  pkt_time of 0 means no timeout should be
-       performed.
-
-
-       For a command which has timed out, the HBA driver must perform some
-       recovery operation to clear the command in the target, typically an Abort
-       message, or a Device or Bus Reset.  The pkt_reason member of the timed
-       out pkt should be set to  CMD_TIMEOUT, and pkt_statistics OR'ed with
-       STAT_TIMEOUT. If the HBA driver can successfully recover from the
-       timeout, pkt_statistics must also be  OR'ed with one of  STAT_ABORTED,
-       STAT_BUS_RESET, or  STAT_DEV_RESET, as appropriate. This informs the
-       target driver that timeout recovery has already been successfully
-       accomplished for the timed out command. The  pkt_comp completion
-       callback, if not  NULL, must also be called at the conclusion of the
-       timeout recovery.
-
-
-       If the timeout recovery was accomplished with an Abort Tag message, only
-       the timed out packet is affected, and the  packet must be returned with
-       pkt_statistics OR'ed with  STAT_ABORTED and STAT_TIMEOUT.
-
-
-       If the timeout recovery was accomplished with an Abort message, all
-       commands active in that target are affected. All corresponding packets
-       must be returned with  pkt_reason, CMD_TIMEOUT, and  pkt_statistics OR'ed
-       with  STAT_TIMEOUT and  STAT_ABORTED.
-
-
-       If the timeout recovery was accomplished with a Device Reset, all packets
-       corresponding to commands active in the target must be returned in the
-       transport layer for this target. Packets corresponding to commands active
-       in the target must be returned returned with pkt_reason set to
-       CMD_TIMEOUT, and pkt_statistics OR'ed with STAT_DEV_RESET and
-       STAT_TIMEOUT. Currently inactive packets queued for the device should be
-       returned with pkt_reason set to CMD_RESET and pkt_statistics OR'ed with
-       STAT_ABORTED.
-
-
-       If the timeout recovery was accomplished with a Bus Reset, all  packets
-       corresponding to commands active in the target must be returned in the
-       transport layer. Packets corresponding to commands active in the target
-       must be returned with pkt_reason set to CMD_TIMEOUT and pkt_statistics
-       OR'ed with STAT_TIMEOUT and STAT_BUS_RESET. All queued packets for other
-       targets on this bus must be returned with pkt_reason set to CMD_RESET and
-       pkt_statistics OR'ed with STAT_ABORTED.
-
-
-       Note that after either a Device Reset or a Bus Reset,  the HBA driver
-       must enforce a reset delay time of 'scsi-reset-delay' milliseconds,
-       during which time no commands should be sent to that device, or any
-       device on the bus, respectively.
-
-
-       tran_start() should initialize the following members in  pkt to 0. Upon
-       command completion, the HBA driver should ensure that the values in these
-       members are updated to accurately reflect the states through which the
-       command transitioned while in the transport layer.
-
-       pkt_resid
-                          For commands with data transfer, this member must be
-                          updated to indicate the residual of the data
-                          transferred.
-
-
-       pkt_reason
-                          The reason for the command completion. This field
-                          should be set to CMD_CMPLT at the beginning of
-                          tran_start(), then updated if the command ever
-                          transitions to an abnormal termination state. To avoid
-                          losing information, do not set pkt_reason to any other
-                          error state unless it still has its original CMD_CMPLT
-                          value.
-
-
-       pkt_statistics
-                          Bit field of transport-related statistics.
-
-
-       pkt_state
-                          Bit field with the major states through which a SCSI
-                          command can transition. Note: The members listed
-                          above, and pkt_hba_private member, are the only fields
-                          in the scsi_pkt(9S) structure which may be modified by
-                          the transport layer.
-
-
-RETURN VALUES
-
-       tran_start() must return:
-
-       TRAN_ACCEPT
-                            The packet was accepted by the transport layer.
-
-
-       TRAN_BUSY
-                            The packet could not be accepted because there was
-                            already a packet in progress for this target/logical
-                            unit, the HBA queue was full, or the target device
-                            queue was full.
-
-
-       TRAN_BADPKT
-                            The DMA count in the packet exceeded the DMA
-                            engine's maximum DMA size, or the packet could not
-                            be accepted for other reasons.
-
-
-       TRAN_FATAL_ERROR
-                            A fatal error has occurred in the HBA.
-
-
-CONTEXT
-
-       The tran_start() function can be called from user or interrupt context.
-       This requirement comes from scsi_transport().
-
-SEE ALSO
-
-       attach(9E), tran_init_pkt(9E), scsi_hba_attach(9F), scsi_transport(9F),
-       scsi_address(9S), scsi_arq_status(9S), scsi_hba_tran(9S), scsi_pkt(9S)
-
-
-       Writing Device Drivers
-
-
-                                  April 9, 2016                   TRAN_START(9E)
-
- */
+// RIGHT HERE!
 static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
     //if (pkt->pkt_flags & (1 << FLAG_NOINTR)) {
     //    printf("%s: we have FLAG_NOINTR\n", __func__);
@@ -1100,153 +841,11 @@ static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
 }
 
 // done
-/**
- * @brief vioscsi_tran_sync_pkt
- * @param ap
- * @param pkt
- *
-
-TRAN_SYNC_PKT(9E)              Driver Entry Points             TRAN_SYNC_PKT(9E)
-
-
-NAME
-
-       tran_sync_pkt - SCSI HBA memory synchronization entry point
-
-SYNOPSIS
-
-       #include <sys/scsi/scsi.h>
-
-
-       void prefixtran_sync_pkt(struct scsi_address *ap,
-            struct scsi_pkt *pkt);
-
-
-INTERFACE LEVEL
-
-       Solaris architecture specific (Solaris DDI).
-
-PARAMETERS
-
-       ap
-               A pointer to a scsi_address(9S) structure.
-
-
-       pkt
-               A pointer to a scsi_pkt(9S) structure.
-
-
-DESCRIPTION
-
-       The tran_sync_pkt() vector in the scsi_hba_tran(9S) structure must be
-       initialized during the HBA driver's attach(9E) to point to an HBA driver
-       entry point to be called when a target driver calls scsi_sync_pkt(9F).
-
-
-       tran_sync_pkt() must synchronize a HBA's or device's view of the data
-       associated with the pkt, typically by calling ddi_dma_sync(9F). The
-       operation may also involve HBA hardware-specific details, such as
-       flushing I/O caches, or stalling until hardware buffers have been
-       drained.
-
-SEE ALSO
-
-       attach(9E), tran_init_pkt(9E), ddi_dma_sync(9F), scsi_hba_attach(9F),
-       scsi_init_pkt(9F), scsi_sync_pkt(9F), scsi_address(9S),
-       scsi_hba_tran(9S), scsi_pkt(9S)
-
-
-       Writing Device Drivers
-
-NOTES
-
-       A target driver may call tran_sync_pkt() on packets for which no DMA
-       resources were allocated.
-
-
-                                November 1, 1993               TRAN_SYNC_PKT(9E)
-
- */
 static void vioscsi_tran_sync_pkt(struct scsi_address *ap, struct scsi_pkt *pkt) {
     return;
 }
 
 // done
-/**
- * @brief vioscsi_tran_tgt_free
- * @param hba_dip
- * @param tgt_dip
- * @param hba_tran
- * @param sd
- *
-
-TRAN_TGT_FREE(9E)              Driver Entry Points             TRAN_TGT_FREE(9E)
-
-
-NAME
-
-       tran_tgt_free - request to free HBA resources allocated on behalf of a
-       target
-
-SYNOPSIS
-
-       #include <sys/scsi/scsi.h>
-
-
-       void prefixtran_tgt_free(dev_info_t *hba_dip, dev_info_t *tgt_dip,
-            scsi_hba_tran_t *hba_tran, struct scsi_device *sd);
-
-
-INTERFACE LEVEL
-
-       Solaris architecture specific (Solaris DDI).
-
-PARAMETERS
-
-       hba_dip
-                    Pointer to a  dev_info_t structure, referring to the HBA
-                    device instance.
-
-
-       tgt_dip
-                    Pointer to a  dev_info_t structure, referring to the target
-                    device instance.
-
-
-       hba_tran
-                    Pointer to a  scsi_hba_tran(9S) structure, consisting of the
-                    HBA's transport vectors.
-
-
-       sd
-                    Pointer to a  scsi_device(9S) structure, describing the
-                    target.
-
-
-DESCRIPTION
-
-       The tran_tgt_free() vector in the scsi_hba_tran(9S) structure may be
-       initialized during the HBA driver's attach(9E) to point to an HBA driver
-       function to be called by the system when an instance of a target device
-       is being detached.  The tran_tgt_free() vector, if not NULL, is called
-       after the target device instance has returned successfully from its
-       detach(9E) entry point, but before the dev_info node structure is removed
-       from the system. The HBA driver should release any resources allocated
-       during its tran_tgt_init() or tran_tgt_probe() initialization performed
-       for this target device instance.
-
-SEE ALSO
-
-       attach(9E), detach(9E), tran_tgt_init(9E), tran_tgt_probe(9E),
-       scsi_device(9S), scsi_hba_tran(9S)
-
-
-       Writing Device Drivers
-
-
-                                November 1, 1993               TRAN_TGT_FREE(9E)
-
- */
 static void vioscsi_tran_tgt_free(dev_info_t *hba_dip, dev_info_t *tgt_dip, scsi_hba_tran_t *hba_tran, struct scsi_device *sd) {
     return;
 }
@@ -1324,108 +923,6 @@ static dev_info_t* vioscsi_find_child(struct vioscsi_softc *sc, uint16_t tgt, ui
 }
 
 // done
-/**
- * @brief vioscsi_tran_tgt_init
- * @param hba_dip
- * @param tgt_dip
- * @param hba_tran
- * @param sd
- * @return
- *
-
-TRAN_TGT_INIT(9E)              Driver Entry Points             TRAN_TGT_INIT(9E)
-
-
-NAME
-
-       tran_tgt_init - request to initialize HBA resources on behalf of a
-       particular target
-
-SYNOPSIS
-
-       #include <sys/scsi/scsi.h>
-
-
-       int prefixtran_tgt_init(dev_info_t *hba_dip, dev_info_t *tgt_dip,
-            scsi_hba_tran_t *hba_tran, struct scsi_device *sd);
-
-
-INTERFACE LEVEL
-
-       Solaris architecture specific (Solaris DDI).
-
-PARAMETERS
-
-       hba_dip
-                    Pointer to a  dev_info_t structure, referring to the HBA
-                    device instance.
-
-
-       tgt_dip
-                    Pointer to a dev_info_t structure, referring to the target
-                    device instance.
-
-
-       hba_tran
-                    Pointer to a  scsi_hba_tran(9S) structure, consisting of the
-                    HBA's transport vectors.
-
-
-       sd
-                    Pointer to a  scsi_device(9S) structure, describing the
-                    target.
-
-
-DESCRIPTION
-
-       The tran_tgt_init() vector in the scsi_hba_tran(9S) structure may be
-       initialized during the HBA driver's attach(9E) to point to an HBA driver
-       function to be called by the system when an instance of a target device
-       is being created.  The tran_tgt_init() vector, if not NULL,is called
-       after the dev_info node structure is created for this target device
-       instance, but before probe(9E) for this instance is called. Before
-       receiving transport requests from the target driver instance, the HBA may
-       perform any initialization required for this particular target during the
-       call of the tran_tgt_init() vector.
-
-
-       Note that hba_tran will point to a cloned copy of the scsi_hba_tran_t
-       structure allocated by the HBA driver if the SCSI_HBA_TRAN_CLONE flag was
-       specified in the call to scsi_hba_attach(9F). In this case, the HBA
-       driver may choose to initialize the tran_tgt_private field in the
-       structure pointed to by hba_tran, to point to the data specific to the
-       particular target device instance.
-
-RETURN VALUES
-
-       tran_tgt_init() must return:
-
-       DDI_SUCCESS
-                       the HBA driver can support the addressed target, and was
-                       able to initialize per-target resources.
-
-
-       DDI_FAILURE
-                       the HBA driver cannot support the addressed target, or
-                       was unable to initialize per-target resources. In this
-                       event, the initialization of this instance of the target
-                       device will not be continued, the target driver's
-                       probe(9E) will not be called, and the tgt_dip structure
-                       destroyed.
-
-
-SEE ALSO
-
-       attach(9E), probe(9E), tran_tgt_free(9E), tran_tgt_probe(9E),
-       scsi_hba_attach_setup(9F), scsi_device(9S), scsi_hba_tran(9S)
-
-
-       Writing Device Drivers
-
-
-                                 March 13, 2016                TRAN_TGT_INIT(9E)
-
- */
 static int vioscsi_tran_tgt_init(dev_info_t *hba_dip, dev_info_t *tgt_dip, scsi_hba_tran_t *hba_tran, struct scsi_device *sd) {
 
     struct vioscsi_softc *sc = sd->sd_address.a_hba_tran->tran_hba_private;
@@ -1461,171 +958,11 @@ static int vioscsi_tran_tgt_init(dev_info_t *hba_dip, dev_info_t *tgt_dip, scsi_
 }
 
 // done
-/**
- * @brief vioscsi_tran_tgt_probe
- * @param sd
- * @return
- *
-
-TRAN_TGT_PROBE(9E)             Driver Entry Points            TRAN_TGT_PROBE(9E)
-
-
-NAME
-
-       tran_tgt_probe - request to probe SCSI bus for a particular target
-
-SYNOPSIS
-
-       #include <sys/scsi/scsi.h>
-
-
-       int prefixtran_tgt_probe(struct scsi_device *sd, int (*waitfunc,
-            void)););
-
-
-INTERFACE LEVEL
-
-       Solaris architecture specific (Solaris DDI).
-
-PARAMETERS
-
-       sd
-                    Pointer to a  scsi_device(9S) structure.
-
-
-       waitfunc
-                    Pointer to either  NULL_FUNC or SLEEP_FUNC.
-
-
-DESCRIPTION
-
-       The tran_tgt_probe() vector in the scsi_hba_tran(9S) structure may be
-       initialized during the HBA driver's attach(9E) to point to a function to
-       be called by scsi_probe(9F) when called by a target driver during
-       probe(9E) and attach(9E) to probe for a particular SCSI target on the
-       bus. In the absence of an HBA-specific tran_tgt_probe() function, the
-       default scsi_probe(9F) behavior is supplied by the function
-       scsi_hba_probe(9F).
-
-
-       The possible choices the HBA driver may make are:
-
-           o      Initialize the tran_tgt_probe vector to point to
-                  scsi_hba_probe(9F), which results in the same behavior.
-
-           o      Initialize the tran_tgt_probe vector to point to a private
-                  function in the HBA, which may call scsi_hba_probe(9F) before
-                  or after any necessary processing, as long as all the defined
-                  scsi_probe(9F) semantics are preserved.
-
-
-       waitfunc indicates what tran_tgt_probe() should do when resources are not
-       available:
-
-       NULL_FUNC
-                      Do not wait for resources.  See  scsi_probe(9F) for
-                      defined return values if no resources are available.
-
-
-       SLEEP_FUNC
-                      Wait indefinitely for resources.
-
-
-SEE ALSO
-
-       attach(9E), probe(9E), tran_tgt_free(9E), tran_tgt_init(9E),
-       scsi_hba_probe(9F), scsi_probe(9F), scsi_device(9S), scsi_hba_tran(9S)
-
-
-       Writing Device Drivers
-
-
-                                November 1, 1993              TRAN_TGT_PROBE(9E)
-
- */
 static int vioscsi_tran_tgt_probe(struct scsi_device *sd, int (*waitfunc)(void)) {
     return scsi_hba_probe(sd, waitfunc);
 }
 
 // done
-/**
- * @brief vioscsi_tran_bus_unquiesce
- * @param hba_dip
- * @return
- *
-
-TRAN_QUIESCE(9E)               Driver Entry Points              TRAN_QUIESCE(9E)
-
-
-NAME
-
-       tran_quiesce, tran_unquiesce - quiesce and unquiesce a SCSI bus
-
-SYNOPSIS
-
-       #include <sys/scsi/scsi.h>
-
-       int prefixtran_quiesce(dev_info_t *hba_dip);
-
-
-       int prefixtran_unquiesce(dev_info_t *hba_dip);
-
-
-INTERFACE LEVEL
-
-       Solaris DDI
-
-PARAMETERS
-
-       hba_dip
-                  The dev_info_t pointer associated with the SCSI HBA.
-
-
-DESCRIPTION
-
-       The  tran_quiesce() and  tran_unquiesce() vectors in the
-       scsi_hba_tran(9S) structure should be initialized during the HBA driver's
-       attach(9E). They are HBA entry points to be called when a user initiates
-       quiesce and unquiesce operations through device control interfaces.
-
-
-       tran_quiesce() should wait for all outstanding commands to complete and
-       blocks (or queues) any I/O requests issued. tran_unquiesce() should allow
-       I/O activities to resume on the SCSI bus.
-
-
-       Implementation is hardware specific.
-
-RETURN VALUES
-
-       tran_quiesce() and tran_unquiesce() should return:
-
-       0
-                   Successful completion.
-
-
-       Non-zero
-                   An error occurred.
-
-
-ATTRIBUTES
-
-       See attributes(5) for a description of the following attributes:
-
-
-       +--------------------+-----------------+
-       |  ATTRIBUTE TYPE    | ATTRIBUTE VALUE |
-       +--------------------+-----------------+
-       |Interface Stability | Committed       |
-       +--------------------+-----------------+
-
-SEE ALSO
-
-       attributes(5), tran_bus_reset(9E), scsi_hba_tran(9S)
-
-
-                                January 31, 1999                TRAN_QUIESCE(9E)
- */
 static int vioscsi_tran_bus_unquiesce(dev_info_t *hba_dip) {
     return DDI_SUCCESS;
 }
@@ -2175,12 +1512,12 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     virtio_set_status(&sc->sc_virtio, VIRTIO_CONFIG_DEVICE_STATUS_DRIVER);
 
     // TODO: get device features and stuff.
-    sc->sc_max_target   = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CFG_MAX_TARGET);
-    sc->sc_max_lun      = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CFG_MAX_LUN);
-    sc->sc_max_channel  = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CFG_MAX_CHANNEL);
-    sc->sc_max_req      = (sc->sc_max_lun * virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CFG_CMD_PER_LUN));
-    sc->sc_cdb_size     = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CFG_CDB_SIZE);
-    sc->sc_max_seg      = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CFG_SEG_MAX);
+    sc->sc_max_target   = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_TARGET);
+    sc->sc_max_lun      = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_LUN);
+    sc->sc_max_channel  = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_CHANNEL);
+    sc->sc_max_req      = (sc->sc_max_lun * virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_CMD_PER_LUN));
+    sc->sc_cdb_size     = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_CDB_SIZE);
+    sc->sc_max_seg      = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_SEG_MAX);
 
     // register interrupts.
     if (vioscsi_register_ints(sc)) {
