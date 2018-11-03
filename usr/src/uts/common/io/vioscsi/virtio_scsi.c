@@ -413,17 +413,6 @@ static int vioscsi_tran_bus_unquiesce(dev_info_t *hba_dip) {
     return DDI_SUCCESS;
 }
 
-// done https://illumos.org/man/9E/tran_setup_pkt
-static int vioscsi_tran_setup_pkt(struct scsi_pkt *pkt, int (*callback)(caddr_t), caddr_t arg) {
-    printf("%s: called\n", __func__);
-    return 0;
-}
-
-// done
-static void vioscsi_tran_teardown_pkt(struct scsi_pkt *pkt) {
-    printf("%s: called\n", __func__);
-    return;
-}
 
 /* not implemented */
 /* static void vioscsi_tran_destroy_pkt(struct scsi_address *ap, struct scsi_pkt *pkt); */
@@ -434,32 +423,7 @@ static void vioscsi_tran_teardown_pkt(struct scsi_pkt *pkt) {
 
 
 
-// helper for vioscsi_tran_dma_free()
-static void vioscsi_buffer_release(struct vioscsi_buffer *vb) {
-    printf("%s: called\n", __func__);
-    if (vb->state != VIRTIO_SCSI_BUFFER_ALLOCATED) {
-        return;
-    }
 
-    (void) ddi_dma_unbind_handle(vb->buffer_dmah);
-
-    if (vb->buffer_acch) {
-        (void) ddi_dma_mem_free(&vb->buffer_acch);
-    }
-
-    (void) ddi_dma_free_handle(&vb->buffer_dmah);
-
-    vb->state = VIRTIO_SCSI_BUFFER_FREE;
-
-    return;
-}
-
-// done
-static void vioscsi_tran_dma_free(struct scsi_address *ap, struct scsi_pkt *pkt) {
-    printf("%s: called\n", __func__);
-    struct vioscsi_request *req = pkt->pkt_ha_private;
-    vioscsi_buffer_release(&req->virtio_headers_buf);
-}
 
 // done
 static int vioscsi_tran_getcap(struct scsi_address *ap, char *cap, int whom) {
@@ -912,6 +876,45 @@ static int vioscsi_tran_tgt_probe(struct scsi_device *sd, int (*waitfunc)(void))
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // helper for vioscsi_tran_pkt_constructor
 static int vioscsi_buffer_setup(struct vioscsi_softc *sc, struct vioscsi_buffer* vb, size_t buffer_size) {
     printf("%s: called\n", __func__);
@@ -957,6 +960,7 @@ release_dma_mem:
     return (DDI_FAILURE);
 }
 
+
 /* preallocate DMA handles and stuff for requests */
 /* TODO: update vioscsi_scsi_buffer_setup to take into account kmflags */
 static int vioscsi_req_construct(void *buffer, void *user_arg, int kmflags) {
@@ -980,6 +984,30 @@ static int vioscsi_req_construct(void *buffer, void *user_arg, int kmflags) {
     return 0;
 }
 
+
+/*
+ * >pkt_constructor
+ *      >req_construct
+ *          >buffer_setup
+ *      <req_construct
+ * <pkg_constructor
+ * >pkt_destructor
+ *      >req_destruct
+ *          >buffer_release
+ */
+
+// done https://illumos.org/man/9E/tran_setup_pkt
+static int vioscsi_tran_setup_pkt(struct scsi_pkt *pkt, int (*callback)(caddr_t), caddr_t arg) {
+    printf("%s: called\n", __func__);
+    return 0;
+}
+
+// done
+static void vioscsi_tran_teardown_pkt(struct scsi_pkt *pkt) {
+    printf("%s: called\n", __func__);
+    return;
+}
+
 static int vioscsi_tran_pkt_constructor(struct scsi_pkt *pkt, scsi_hba_tran_t *tran, int kmflags) {
     printf("%s: called\n", __func__);
     struct vioscsi_request *req = pkt->pkt_ha_private;
@@ -997,9 +1025,34 @@ static int vioscsi_tran_pkt_constructor(struct scsi_pkt *pkt, scsi_hba_tran_t *t
 
 
 // helper for vioscsi_tran_pkt_destructor()
-static void vioscsi_req_destruct(void *buffer, void *user_args) {
+//static void vioscsi_req_destruct(void *buffer, void *user_args) {
+//    printf("%s: called\n", __func__);
+//    struct vioscsi_request *req = buffer;
+//    vioscsi_buffer_release(&req->virtio_headers_buf);
+//}
+
+// helper for vioscsi_tran_dma_free()
+static void vioscsi_buffer_release(struct vioscsi_buffer *vb) {
     printf("%s: called\n", __func__);
-    struct vioscsi_request *req = buffer;
+    if (vb->state != VIRTIO_SCSI_BUFFER_ALLOCATED) {
+        return;
+    }
+
+    (void) ddi_dma_unbind_handle(vb->buffer_dmah);
+
+    if (vb->buffer_acch) {
+        (void) ddi_dma_mem_free(&vb->buffer_acch);
+    }
+
+    (void) ddi_dma_free_handle(&vb->buffer_dmah);
+    vb->state = VIRTIO_SCSI_BUFFER_FREE;
+    return;
+}
+
+// done
+static void vioscsi_tran_dma_free(struct scsi_address *ap, struct scsi_pkt *pkt) {
+    printf("%s: called\n", __func__);
+    struct vioscsi_request *req = pkt->pkt_ha_private;
     vioscsi_buffer_release(&req->virtio_headers_buf);
 }
 
@@ -1008,8 +1061,57 @@ static void vioscsi_tran_pkt_destructor(struct scsi_pkt *pkt, scsi_hba_tran_t *t
     printf("%s: called\n", __func__);
     struct vioscsi_request *req = pkt->pkt_ha_private;
     struct vioscsi_softc *sc = tran->tran_hba_private;
-    vioscsi_req_destruct(req, sc);
+    //vioscsi_req_destruct(req, sc); // killed this method and inlined.
+    vioscsi_buffer_release(&req->virtio_headers_buf);
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 // helper for vioscsi_config_lun()
