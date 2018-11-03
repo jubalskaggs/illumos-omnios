@@ -990,6 +990,27 @@ static int vioscsi_tran_pkt_constructor(struct scsi_pkt *pkt, scsi_hba_tran_t *t
     buf->state = VIRTIO_SCSI_BUFFER_ALLOCATED;
     buf->buffer_size = buffer_size;
     printf("%s: We made the success case, continuing.\n", __func__);
+
+//    struct vioscsi_request {
+//    struct scsi_pkt *req_pkt;           /* SCSA packet we are servicing */
+//    struct vq_entry  *req_ve;           /* VQ entry we are using */
+//    /* first buffer is for virtio scsi headers/stuff */
+//    /* second one - for data payload */
+//    struct vioscsi_buffer virtio_headers_buf;
+
+//    boolean_t dir;                      /* request direction (to/from HBA) */
+//    int polling_done;                   /* true if the request is completed */
+
+//    unsigned char scbp[DEFAULT_SCBLEN];
+//    unsigned char cdbp[DEFAULT_CDBLEN];
+//    };
+
+    // interrogate the packet a bit.
+    printf("%s: req->dir == %d", __func__, req->dir);
+    printf("%s: req->polling_done == %d", __func__, req->polling_done);
+    printf("%s: req->cdbp == %s", __func__, req->cdbp);
+    printf("%s: req->sdbp == %s", __func__, req->scbp);
+
     return 0;
 
 unbind_handle:
