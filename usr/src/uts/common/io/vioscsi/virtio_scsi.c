@@ -772,6 +772,89 @@ static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
     printf("%s: done calling virtio_push_chain\n", __func__);
 
 
+    // getting warmer?!
+    /*
+     * TIME                           UUID                                 SUNW-MSG-ID
+        Nov 03 2018 19:27:06.895201000 dcb2bb5a-e57b-e8f7-9eb6-ad210c142711 SUNOS-8000-KL
+
+          TIME                 CLASS                                 ENA
+          Nov 03 19:27:05.9331 ireport.os.sunos.panic.dump_available 0x0000000000000000
+          Nov 03 19:27:03.7161 ireport.os.sunos.panic.dump_pending_on_device 0x0000000000000000
+
+            nvlist version: 0
+                    version = 0x0
+                    class = list.suspect
+                    uuid = dcb2bb5a-e57b-e8f7-9eb6-ad210c142711
+                    code = SUNOS-8000-KL
+                    diag-time = 1541273226 883458
+                    de = fmd:///module/software-diagnosis
+                    fault-list-sz = 0x1
+                    fault-list = (array of embedded nvlists)
+                    (start fault-list[0])
+                    nvlist version: 0
+                            version = 0x0
+                            class = defect.sunos.kernel.panic
+                            certainty = 0x64
+                            asru = sw:///:path=/var/crash//.dcb2bb5a-e57b-e8f7-9eb6-ad210c142711
+                            resource = sw:///:path=/var/crash//.dcb2bb5a-e57b-e8f7-9eb6-ad210c142711
+                            savecore-succcess = 1
+                            dump-dir = /var/crash/
+                            dump-files = vmdump.0
+                            os-instance-uuid = dcb2bb5a-e57b-e8f7-9eb6-ad210c142711
+                            panicstr = BAD TRAP: type=e (#pf Page fault) rp=fffffe0003540e00 addr=8 occurred in module "genunix" due to a NULL pointer dereference
+                            panicstack =
+                                unix:real_mode_stop_cpu_stage2_end+bc1c () |
+                                unix:trap+e08 () |
+                                unix:cmntrap+e6 () |
+                                genunix:list_remove_head+2c () |
+                                virtio:vq_alloc_entry+43 () |
+                                vioscsi:vioscsi_tran_start+175 () |
+                                scsi:scsi_transport+7b () |
+                                sd:sd_start_cmds+1ab () |
+                                sd:sd_send_request_sense_command+c1 () |
+                                sd:sdintr+1d2 () |
+                                scsi:scsi_hba_pkt_comp+63 () |
+                                vioscsi:vioscsi_intr_handler+8d () |
+                                vioscsi:vioscsi_tran_start+337 () |
+                                scsi:scsi_transport+7b () |
+                                sd:sd_start_cmds+1ab () |
+                                sd:sd_core_iostart+90 () |
+                                sd:sd_pm_iostart+4a () |
+                                sd:sd_uscsi_strategy+fa () |
+                                scsi:scsi_uscsi_handle_cmd+11f () |
+                                sd:sd_ssc_send+136 () |
+                                sd:sd_send_scsi_TEST_UNIT_READY+121 () |
+                                sd:sd_unit_attach+731 () |
+                                sd:sdattach+19 () |
+                                genunix:devi_attach+92 () |
+                                genunix:attach_node+a7 () |
+                                genunix:i_ndi_config_node+7d () |
+                                genunix:i_ddi_attachchild+48 () |
+                                genunix:devi_attach_node+5e () |
+                                genunix:ndi_devi_online+9a () |
+                                vioscsi:vioscsi_config_child+1dc () |
+                                vioscsi:vioscsi_config_lun+1f3 () |
+                                vioscsi:vioscsi_tran_bus_config+1c4 () |
+                                scsi:scsi_hba_bus_config+70 () |
+                                genunix:devi_config_common+a5 () |
+                                genunix:mt_config_thread+58 () |
+                                unix:thread_start+8 () |
+
+
+
+                            crashtime = 1541273143
+                            panic-time = Sat Nov  3 19:25:43 2018 UTC
+                    (end fault-list[0])
+
+                    fault-status = 0x1
+                    severity = Major
+                    __ttl = 0x1
+                    __tod = 0x5bddf68a 0x355baee8
+        */
+
+
+
+
     if (pkt->pkt_flags & FLAG_NOINTR) {
         printf("%s: we have a FLAG_NOINTR in pkt_flags\n", __func__);
         /* disable interrupts for a while */
@@ -781,22 +864,27 @@ static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
         while (req->polling_done == 0) {
             printf("%s: req->polling_done == 0, so looping, and calling vioscsi_intr_handler\n", __func__);
             (void) vioscsi_intr_handler((caddr_t)&sc->sc_virtio, NULL);
-            drv_usecwait(10);
+            drv_usecwait(100);
         }
         printf("%s: polling is done, calling virtio_start_vq_intr\n", __func__);
         req->polling_done = 0;
         virtio_start_vq_intr(sc->sc_request_vq);
     } else {
-        printf("%s: we do not have FLAG_NOINTR in pkt_flags\n", __func__);
+        printf("%s: we do not have a FLAG_NOINTR in pkt_flags\n", __func__);
+        /* disable interrupts for a while */
+        virtio_stop_vq_intr(sc->sc_request_vq);
+
+        /* TODO: add timeout here */
         while (req->polling_done == 0) {
             printf("%s: req->polling_done == 0, so looping, and calling vioscsi_intr_handler\n", __func__);
-            (void)vioscsi_intr_handler((caddr_t)&sc->sc_virtio, NULL);
-            drv_usecwait(10);
+            (void) vioscsi_intr_handler((caddr_t)&sc->sc_virtio, NULL);
+            drv_usecwait(100);
         }
         printf("%s: polling is done, calling virtio_start_vq_intr\n", __func__);
         req->polling_done = 0;
+        virtio_start_vq_intr(sc->sc_request_vq);
     }
-    /* end */
+
 
     printf("%s: returning TRAN_ACCEPT\n", __func__);
     return (TRAN_ACCEPT);
