@@ -27,6 +27,14 @@
 
 /**
  *
+ * Same configuration, but picked up out of dmesg from freebsd:
+ * Nov  3 09:49:26 fbsd kernel: da0 at vtscsi0 bus 0 scbus2 target 0 lun 0
+ * Nov  3 09:49:26 fbsd kernel: da0: <QEMU QEMU HARDDISK 2.5+> Fixed Direct Access SPC-3 SCSI device
+ * Nov  3 09:49:26 fbsd kernel: da0: 4294966.784MB/s transfers
+ * Nov  3 09:49:26 fbsd kernel: da0: Command Queueing enabled
+ * Nov  3 09:49:26 fbsd kernel: da0: 20480MB (41943040 512 byte sectors)
+ *
+ *
  * Trisk branch from Dmitry at nexenta from 2014 (incomplete, but it's what this is based on
  * https://github.com/trisk/illumos-gate/blob/vioscsi-fk1/usr/src/uts/common/io/vioscsi/vioscsi.c
  *
@@ -733,14 +741,18 @@ static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
     virtio_ve_add_indirect_buf(ve, req_buf->buffer_dmac.dmac_laddress + sizeof(struct vioscsi_cmd_req), sizeof(struct vioscsi_cmd_resp), B_FALSE);
 
     /* add some payload, if any */
+    printf("%s: checking to see if pkt_numcookies\n", __func__);
     if (pkt->pkt_numcookies) {
+        printf("%s: in pkt_numcookies\n", __func__);
         ddi_dma_cookie_t *dmac;
         for (i = 0; i < pkt->pkt_numcookies; i ++) {
+            printf("%s: looping thru pkg_num_cookies, and calling virtio_ve_add_indirect_buf\n", __func__);
             dmac = &pkt->pkt_cookies[i];
             virtio_ve_add_indirect_buf(ve, dmac->dmac_laddress, dmac->dmac_size, pkt->pkt_dma_flags & DDI_DMA_WRITE);
         }
     }
     /* FIXME: use virtio_set_private stuff instead of directly pointing */
+    printf("%s: putting req on ve->qe_private\n", __func__);
     ve->qe_private = req;
     //	virtio_set_private(ve, req);
 
@@ -748,19 +760,27 @@ static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
 
 
     // this happens.
+    printf("%s: calling virtio_push_chain\n", __func__);
     virtio_push_chain(ve, B_TRUE);
+    printf("%s: done calling virtio_push_chain\n", __func__);
+
 
     if (pkt->pkt_flags & FLAG_NOINTR) {
+        printf("%s: we have a FLAG_INTR in pkt_flags\n", __func__);
         /* disable interrupts for a while */
         virtio_stop_vq_intr(sc->sc_request_vq);
 
         /* TODO: add timeout here */
         while (req->polling_done == 0) {
+            printf("%s: req->polling_done == 0, so looping, and calling vioscsi_intr_handler\n", __func__);
             (void) vioscsi_intr_handler((caddr_t)&sc->sc_virtio, NULL);
             drv_usecwait(10);
         }
+        printf("%s: polling is done, calling virtio_start_vq_intr\n", __func__);
         req->polling_done = 0;
         virtio_start_vq_intr(sc->sc_request_vq);
+    } else {
+        printf("%s: we do not have FLAG_NOINTR in pkt_flags\n", __func__);
     }
     /* end */
 
