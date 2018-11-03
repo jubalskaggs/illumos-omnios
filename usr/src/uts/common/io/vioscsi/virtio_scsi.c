@@ -921,21 +921,21 @@ static int vioscsi_tran_tgt_probe(struct scsi_device *sd, int (*waitfunc)(void))
 
 
 
-/*
- * >pkt_constructor
- *      >req_construct
- *          >buffer_setup
- *      <req_construct
- * <pkg_constructor
- * >pkt_destructor
- *      >req_destruct
- *          >buffer_release
- */
-
-// done https://illumos.org/man/9E/tran_setup_pkt
-static int vioscsi_tran_setup_pkt(struct scsi_pkt *pkt, int (*callback)(caddr_t), caddr_t arg) {
+// done
+// https://illumos.org/man/9E/tran_setup_pkt
+// https://illumos.org/man/9S/scsi_pkt
+static int vioscsi_tran_setup_pkt(struct scsi_pkt *pkt, int (*callback)(caddr_t), caddr_t cbarg) {
     printf("%s: called\n", __func__);
-    return 0;
+
+    // ok we got a packet.. but we're not doing anything with it..
+    // lets get a look at it.
+
+    printf("%s: \n", __func__);
+
+
+    // must return 0 on success and -1 on failure.
+    // return 0;
+    return -1;
 }
 
 // done
