@@ -1042,7 +1042,7 @@ static int vioscsi_tran_pkt_constructor(struct scsi_pkt *pkt, scsi_hba_tran_t *t
         buf = &req->virtio_headers_buf;
         buf->state = VIRTIO_SCSI_BUFFER_FREE;
         /* allocate DMA resources for the vioscsi headers */
-        if (vioscsi_buffer_setup(sc, buf, 1024) != DDI_SUCCESS) {
+        if (vioscsi_buffer_setup((void*)sc, buf, 1024) != DDI_SUCCESS) {
             ret = ENOMEM;
         }
 
