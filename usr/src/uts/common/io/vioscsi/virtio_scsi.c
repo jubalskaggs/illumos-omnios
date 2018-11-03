@@ -963,26 +963,26 @@ release_dma_mem:
 
 /* preallocate DMA handles and stuff for requests */
 /* TODO: update vioscsi_scsi_buffer_setup to take into account kmflags */
-static int vioscsi_req_construct(void *buffer, void *user_arg, int kmflags) {
-    printf("%s: called\n", __func__);
-    struct vioscsi_softc *sc = user_arg;
-    struct vioscsi_request *req = buffer;
-    struct vioscsi_buffer *buf;
+//static int vioscsi_req_construct(void *buffer, void *user_arg, int kmflags) {
+//    printf("%s: called\n", __func__);
+//    struct vioscsi_softc *sc = user_arg;
+//    struct vioscsi_request *req = buffer;
+//    struct vioscsi_buffer *buf;
 
-    buf = &req->virtio_headers_buf;
+//    buf = &req->virtio_headers_buf;
 
-    buf->state = VIRTIO_SCSI_BUFFER_FREE;
+//    buf->state = VIRTIO_SCSI_BUFFER_FREE;
 
-    /* allocate DMA resources for the vioscsi headers */
-    /* SCSA will allocate the rest */
-    if (vioscsi_buffer_setup(sc, buf, 1024) != DDI_SUCCESS) {
-        printf("%s: returning ENOMEM because vioscsi_scsi_buffer_setup != DDI_SUCCESS\n", __func__);
-        return (ENOMEM);
-    }
+//    /* allocate DMA resources for the vioscsi headers */
+//    /* SCSA will allocate the rest */
+//    if (vioscsi_buffer_setup(sc, buf, 1024) != DDI_SUCCESS) {
+//        printf("%s: returning ENOMEM because vioscsi_scsi_buffer_setup != DDI_SUCCESS\n", __func__);
+//        return (ENOMEM);
+//    }
 
-    printf("%s: returning 0\n", __func__);
-    return 0;
-}
+//    printf("%s: returning 0\n", __func__);
+//    return 0;
+//}
 
 
 /*
@@ -1017,19 +1017,42 @@ static int vioscsi_tran_pkt_constructor(struct scsi_pkt *pkt, scsi_hba_tran_t *t
     req->req_pkt = pkt;
 
     /* TODO: error check? */
-    int ret = vioscsi_req_construct(req, sc, kmflags);
+    //int ret = vioscsi_req_construct(req, sc, kmflags);
+
+    //static int vioscsi_req_construct(void *buffer, void *user_arg, int kmflags) {
+    //    struct vioscsi_softc *sc = user_arg;
+    //    struct vioscsi_request *req = buffer;
+    //    struct vioscsi_buffer *buf;
+
+    //    buf = &req->virtio_headers_buf;
+
+    //    buf->state = VIRTIO_SCSI_BUFFER_FREE;
+
+    //    /* allocate DMA resources for the vioscsi headers */
+    //    /* SCSA will allocate the rest */
+    //    if (vioscsi_buffer_setup(sc, buf, 1024) != DDI_SUCCESS) {
+    //        printf("%s: returning ENOMEM because vioscsi_scsi_buffer_setup != DDI_SUCCESS\n", __func__);
+    //        return (ENOMEM);
+    //    }
+    //    return 0;
+    //  }
+
+        int ret = 0;
+        struct vioscsi_buffer *buf;
+        buf = &req->virtio_headers_buf;
+        buf->state = VIRTIO_SCSI_BUFFER_FREE;
+        /* allocate DMA resources for the vioscsi headers */
+        if (vioscsi_buffer_setup(sc, buf, 1024) != DDI_SUCCESS) {
+            ret = ENOMEM;
+        }
+
 
     printf("%s: returning %d\n", __func__, ret);
     return ret;
 }
 
 
-// helper for vioscsi_tran_pkt_destructor()
-//static void vioscsi_req_destruct(void *buffer, void *user_args) {
-//    printf("%s: called\n", __func__);
-//    struct vioscsi_request *req = buffer;
-//    vioscsi_buffer_release(&req->virtio_headers_buf);
-//}
+
 
 // helper for vioscsi_tran_dma_free()
 static void vioscsi_buffer_release(struct vioscsi_buffer *vb) {
@@ -1055,6 +1078,13 @@ static void vioscsi_tran_dma_free(struct scsi_address *ap, struct scsi_pkt *pkt)
     struct vioscsi_request *req = pkt->pkt_ha_private;
     vioscsi_buffer_release(&req->virtio_headers_buf);
 }
+
+// helper for vioscsi_tran_pkt_destructor()
+//static void vioscsi_req_destruct(void *buffer, void *user_args) {
+//    printf("%s: called\n", __func__);
+//    struct vioscsi_request *req = buffer;
+//    vioscsi_buffer_release(&req->virtio_headers_buf);
+//}
 
 // done
 static void vioscsi_tran_pkt_destructor(struct scsi_pkt *pkt, scsi_hba_tran_t *tran) {
