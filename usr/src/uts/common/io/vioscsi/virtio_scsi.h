@@ -174,34 +174,34 @@ struct vioscsi_cmd_resp {
 /* Followed by data-in. */
 
 /*Task managment request */
-//struct vioscsi_ctrl_tmf_req {
-//    uint32_t type;
-//    uint32_t subtype;
-//    uint8_t  lun[8];
-//    uint64_t tag;
-//} __packed;
+struct vioscsi_ctrl_tmf_req {
+    uint32_t type;
+    uint32_t subtype;
+    uint8_t  lun[8];
+    uint64_t tag;
+} __packed;
 
-//struct vioscsi_ctrl_tmf_resp {
-//    uint8_t response;
-//} __packed;
+struct vioscsi_ctrl_tmf_resp {
+    uint8_t response;
+} __packed;
 
 ///* asynchronous notification query/subscription */
-//struct vioscsi_ctrl_an_req {
-//    uint32_t type;
-//    uint8_t lun[8];
-//    uint32_t event_requested;
-//} __packed;
+struct vioscsi_ctrl_an_req {
+    uint32_t type;
+    uint8_t lun[8];
+    uint32_t event_requested;
+} __packed;
 
-//struct vioscsi_ctrl_an_resp {
-//    uint32_t event_actual;
-//    uint8_t	response;
-//} __packed;
+struct vioscsi_ctrl_an_resp {
+    uint32_t event_actual;
+    uint8_t	response;
+} __packed;
 
-//struct vioscsi_event {
-//    uint32_t event;
-//    uint8_t lun[8];
-//    uint32_t reason;
-//} __packed;
+struct vioscsi_event {
+    uint32_t event;
+    uint8_t lun[8];
+    uint32_t reason;
+} __packed;
 
 
 
