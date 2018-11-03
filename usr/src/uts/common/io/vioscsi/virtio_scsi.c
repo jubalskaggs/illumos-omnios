@@ -766,7 +766,7 @@ static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
 
 
     if (pkt->pkt_flags & FLAG_NOINTR) {
-        printf("%s: we have a FLAG_INTR in pkt_flags\n", __func__);
+        printf("%s: we have a FLAG_NOINTR in pkt_flags\n", __func__);
         /* disable interrupts for a while */
         virtio_stop_vq_intr(sc->sc_request_vq);
 
@@ -781,6 +781,8 @@ static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
         virtio_start_vq_intr(sc->sc_request_vq);
     } else {
         printf("%s: we do not have FLAG_NOINTR in pkt_flags\n", __func__);
+
+        (void)vioscsi_intr_handler((caddr_t)&sc->sc_virtio, NULL);
     }
     /* end */
 
@@ -951,7 +953,6 @@ static int vioscsi_tran_tgt_probe(struct scsi_device *sd, int (*waitfunc)(void))
 static int vioscsi_tran_setup_pkt(struct scsi_pkt *pkt, int (*callback)(caddr_t), caddr_t cbarg) {
     printf("%s: called\n", __func__);
     /* nothing to do, all resources are already preallocated from tran_pkt_constructor */
-    (void)scsi_hba_pkt_comp(pkt);
     return 0;
 }
 
