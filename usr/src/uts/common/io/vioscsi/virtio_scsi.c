@@ -1186,8 +1186,7 @@ static int vioscsi_tran_bus_config(dev_info_t *hba_dip, uint_t flags, ddi_bus_co
     printf("%s: entered\n", __func__);
     int circ;
     int ret = DDI_SUCCESS;
-    uint32_t tgt;
-    uint32_t lun;
+    int tgt, lun;
 
     struct vioscsi_softc *sc = global_virtio_scsi_softc;
     //struct vioscsi_softc *sc;
