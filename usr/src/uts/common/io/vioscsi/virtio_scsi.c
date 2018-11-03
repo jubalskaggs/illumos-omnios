@@ -366,66 +366,77 @@ static struct vioscsi_softc *global_virtio_scsi_softc;
 // done
 static int vioscsi_tran_abort(struct scsi_address *ap, struct scsi_pkt *pkt) {
     /* IMO WE DON'T need tran_abort for VIRTIO_SCSI case */
+    printf("%s: called\n", __func__);
     return DDI_FAILURE;
 }
 
 // done
 static int vioscsi_tran_bus_reset(dev_info_t *hba_dip, int level) {
     /* TODO: implement tran_bus_reset? */
+    printf("%s: called\n", __func__);
     return DDI_FAILURE;
 }
 
 // done
 static int vioscsi_tran_bus_quiesce(dev_info_t *hba_dip) {
+    printf("%s: called\n", __func__);
     return DDI_SUCCESS;
 }
 
 // done
 static int vioscsi_tran_reset(struct scsi_address *ap, int level) {
+    printf("%s: called\n", __func__);
     return DDI_FAILURE;
 }
 
 // done
 static int vioscsi_tran_reset_notify(struct scsi_address *ap, int flags, void (*callback)(caddr_t), caddr_t arg) {
+    printf("%s: called\n", __func__);
     return DDI_FAILURE;
 }
 
 // done
 static void vioscsi_tran_sync_pkt(struct scsi_address *ap, struct scsi_pkt *pkt) {
+    printf("%s: called\n", __func__);
     return;
 }
 
 // done
 static void vioscsi_tran_tgt_free(dev_info_t *hba_dip, dev_info_t *tgt_dip, scsi_hba_tran_t *hba_tran, struct scsi_device *sd) {
+    printf("%s: called\n", __func__);
     return;
 }
 
 // done
 static int vioscsi_tran_bus_unquiesce(dev_info_t *hba_dip) {
+    printf("%s: called\n", __func__);
     return DDI_SUCCESS;
 }
 
 // done https://illumos.org/man/9E/tran_setup_pkt
 static int vioscsi_tran_setup_pkt(struct scsi_pkt *pkt, int (*callback)(caddr_t), caddr_t arg) {
+    printf("%s: called\n", __func__);
     return 0;
 }
 
 // done
 static void vioscsi_tran_teardown_pkt(struct scsi_pkt *pkt) {
+    printf("%s: called\n", __func__);
     return;
 }
+
+/* not implemented */
+/* static void vioscsi_tran_destroy_pkt(struct scsi_address *ap, struct scsi_pkt *pkt); */
 
 // ------------------- END THESE NEED WORK
 
 
 
 
-/* not implemented */
-/* static void vioscsi_tran_destroy_pkt(struct scsi_address *ap, struct scsi_pkt *pkt); */
 
 // helper for vioscsi_tran_dma_free()
 static void vioscsi_buffer_release(struct vioscsi_buffer *vb) {
-
+    printf("%s: called\n", __func__);
     if (vb->state != VIRTIO_SCSI_BUFFER_ALLOCATED) {
         return;
     }
@@ -445,12 +456,14 @@ static void vioscsi_buffer_release(struct vioscsi_buffer *vb) {
 
 // done
 static void vioscsi_tran_dma_free(struct scsi_address *ap, struct scsi_pkt *pkt) {
+    printf("%s: called\n", __func__);
     struct vioscsi_request *req = pkt->pkt_ha_private;
     vioscsi_buffer_release(&req->virtio_headers_buf);
 }
 
 // done
 static int vioscsi_tran_getcap(struct scsi_address *ap, char *cap, int whom) {
+    printf("%s: called\n", __func__);
     int rval = 0;
     struct vioscsi_softc *sc = ap->a_hba_tran->tran_hba_private;
 
@@ -525,6 +538,7 @@ static int vioscsi_tran_getcap(struct scsi_address *ap, char *cap, int whom) {
 
 // done
 static int vioscsi_tran_setcap(struct scsi_address *ap, char *cap, int value, int whom) {
+    printf("%s: called\n", __func__);
     int rval = 1;
 
     if (cap == NULL || whom == 0) {
@@ -632,6 +646,7 @@ static int vioscsi_register_ints(struct vioscsi_softc *sc) {
 
 // RIGHT HERE!
 static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
+    printf("%s: called\n", __func__);
     //if (pkt->pkt_flags & (1 << FLAG_NOINTR)) {
     //    printf("%s: we have FLAG_NOINTR\n", __func__);
     //} else {
@@ -857,7 +872,7 @@ static dev_info_t* vioscsi_find_child(struct vioscsi_softc *sc, uint16_t tgt, ui
 
 // done
 static int vioscsi_tran_tgt_init(dev_info_t *hba_dip, dev_info_t *tgt_dip, scsi_hba_tran_t *hba_tran, struct scsi_device *sd) {
-
+    printf("%s: called\n", __func__);
     struct vioscsi_softc *sc = sd->sd_address.a_hba_tran->tran_hba_private;
 
     uint16_t tgt = sd->sd_address.a_target;
@@ -892,6 +907,7 @@ static int vioscsi_tran_tgt_init(dev_info_t *hba_dip, dev_info_t *tgt_dip, scsi_
 
 // done
 static int vioscsi_tran_tgt_probe(struct scsi_device *sd, int (*waitfunc)(void)) {
+    printf("%s: called\n", __func__);
     return scsi_hba_probe(sd, waitfunc);
 }
 
@@ -965,6 +981,7 @@ static int vioscsi_req_construct(void *buffer, void *user_arg, int kmflags) {
 }
 
 static int vioscsi_tran_pkt_constructor(struct scsi_pkt *pkt, scsi_hba_tran_t *tran, int kmflags) {
+    printf("%s: called\n", __func__);
     struct vioscsi_request *req = pkt->pkt_ha_private;
     struct viocsi_softc *sc = tran->tran_hba_private;
 
@@ -984,11 +1001,11 @@ static void vioscsi_req_destruct(void *buffer, void *user_args) {
     printf("%s: called\n", __func__);
     struct vioscsi_request *req = buffer;
     vioscsi_buffer_release(&req->virtio_headers_buf);
-    printf("%s: returning\n", __func__);
 }
 
 // done
 static void vioscsi_tran_pkt_destructor(struct scsi_pkt *pkt, scsi_hba_tran_t *tran) {
+    printf("%s: called\n", __func__);
     struct vioscsi_request *req = pkt->pkt_ha_private;
     struct vioscsi_softc *sc = tran->tran_hba_private;
     vioscsi_req_destruct(req, sc);
@@ -998,7 +1015,6 @@ static void vioscsi_tran_pkt_destructor(struct scsi_pkt *pkt, scsi_hba_tran_t *t
 // helper for vioscsi_config_lun()
 // ** THIS NEVER RETURNS?
 static int vioscsi_probe_lun(struct scsi_device *sd) {
-
     printf("%s: called\n", __func__);
     int rval;
     int probe_result;
@@ -1131,7 +1147,7 @@ static int vioscsi_parse_devname(char *devnm, int *tgt, int *lun) {
 
 // helper for vioscsi_tran_bus_config()
 static int vioscsi_config_lun(struct vioscsi_softc *sc, int tgt, uint8_t lun, dev_info_t **ldip) {
-    printf("%s: entered\n", __func__);
+    printf("%s: called\n", __func__);
 
 
     struct scsi_device sd;
@@ -1183,7 +1199,7 @@ static int vioscsi_config_lun(struct vioscsi_softc *sc, int tgt, uint8_t lun, de
 
 // TODO: kill the global vioscsi_softc!
 static int vioscsi_tran_bus_config(dev_info_t *hba_dip, uint_t flags, ddi_bus_config_op_t op,  void *arg, dev_info_t **childs) {
-    printf("%s: entered\n", __func__);
+    printf("%s: called\n", __func__);
     int circ;
     int ret = DDI_SUCCESS;
     int tgt, lun;
@@ -1307,6 +1323,7 @@ out:
 
 // TODO: see FIXME!
 static int vioscsi_getinfo(dev_info_t *devinfo, ddi_info_cmd_t cmd, void *dev /*this is a dev_t?*/, void **resultp) {
+    printf("%s: called\n", __func__);
     int err = DDI_SUCCESS;
 
     unsigned int minor = getminor((dev_t)dev);
@@ -1340,7 +1357,6 @@ static int vioscsi_getinfo(dev_info_t *devinfo, ddi_info_cmd_t cmd, void *dev /*
 
     return err;
 }
-
 
 static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     printf("%s: called\n", __func__);
@@ -1533,12 +1549,6 @@ exit_sc:
     return (DDI_FAILURE);
 }
 
-/**
- * @brief vioscsi_detach
- * @param devinfo
- * @param cmd
- * @return
- */
 static int vioscsi_detach(dev_info_t *devinfo, ddi_detach_cmd_t cmd) {
     printf("%s: called\n", __func__);
     struct vioscsi_softc *sc;
@@ -1584,12 +1594,6 @@ static int vioscsi_detach(dev_info_t *devinfo, ddi_detach_cmd_t cmd) {
     return (DDI_SUCCESS);
 }
 
-/**
- * @brief vioscsi_quiesce
- * @param devinfo
- * @return
- * @todo Should this be implemented??????!!!!!
- */
 static int vioscsi_quiesce(dev_info_t *devinfo) {
 //    /* I dunno  look at freebsd http://src.illumos.org/source/xref/freebsd-head/sys/dev/virtio/scsi/virtio_scsi.c */
 //    /*struct vioscsi_softc *sc = ddi_get_driver_private(devinfo);
@@ -1597,6 +1601,7 @@ static int vioscsi_quiesce(dev_info_t *devinfo) {
 //    virtio_stop_vq_intr(sc->sc_event_vq);
 //    virtio_stop_vq_intr(sc->sc_request_vq);
 //    virtio_device_reset(&sc->sc_virtio);*/
+    printf("%s: called\n", __func__);
     return DDI_SUCCESS;
 }
 /**
@@ -1652,7 +1657,7 @@ static struct dev_ops vioscsi_dev_ops = {
 extern struct mod_ops mod_driverops;
 
 static struct modldrv modldrv = {
-    &mod_driverops,                         /* type of module this one is a driver */
+    &mod_driverops,                    /* type of module this one is a driver */
     vioscsi_ident,                     /* short description */
     &vioscsi_dev_ops                   /* driver specific ops */
 };
@@ -1665,11 +1670,9 @@ static struct modlinkage modlinkage = {
   },
 };
 
-/**
- * @brief _init
- * @return
- */
+
 int _init(void) {
+    printf("%s: called\n", __func__);
     int err = 0;
 
     if ((err = scsi_hba_init(&modlinkage)) == 0) {
@@ -1687,11 +1690,8 @@ int _init(void) {
     return err;
 }
 
-/**
- * @brief _fini
- * @return
- */
 int _fini(void) {
+    printf("%s: called\n", __func__);
     int err = 0;
     if ((err = mod_remove(&modlinkage)) == 0) {
         scsi_hba_fini(&modlinkage);
@@ -1701,12 +1701,8 @@ int _fini(void) {
     return err;
 }
 
-/**
- * @brief _info
- * @param modinfop
- * @return
- */
 int _info(struct modinfo *modinfop) {
+    printf("%s: called\n", __func__);
     return mod_info(&modlinkage, modinfop);
 }
 
