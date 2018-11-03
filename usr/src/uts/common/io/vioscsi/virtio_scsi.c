@@ -27,6 +27,13 @@
 
 /**
  *
+ * mdb -k ::prtconf
+ *
+ * -- snip --
+ * fffffe01e577fd50 pci1af4,8, instance #0 (driver name: vioscsi)
+ *          fffffe01e5d78808 scsiclass,00, instance #1 (driver not attached)
+ * -- snip --
+ *
  * Same configuration, but picked up out of dmesg from freebsd:
  * Nov  3 09:49:26 fbsd kernel: da0 at vtscsi0 bus 0 scbus2 target 0 lun 0
  * Nov  3 09:49:26 fbsd kernel: da0: <QEMU QEMU HARDDISK 2.5+> Fixed Direct Access SPC-3 SCSI device
@@ -781,8 +788,13 @@ static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
         virtio_start_vq_intr(sc->sc_request_vq);
     } else {
         printf("%s: we do not have FLAG_NOINTR in pkt_flags\n", __func__);
-
-        (void)vioscsi_intr_handler((caddr_t)&sc->sc_virtio, NULL);
+        while (req->polling_done == 0) {
+            printf("%s: req->polling_done == 0, so looping, and calling vioscsi_intr_handler\n", __func__);
+            (void)vioscsi_intr_handler((caddr_t)&sc->sc_virtio, NULL);
+            drv_usecwait(10);
+        }
+        printf("%s: polling is done, calling virtio_start_vq_intr\n", __func__);
+        req->polling_done = 0;
     }
     /* end */
 
