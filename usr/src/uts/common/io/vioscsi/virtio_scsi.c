@@ -1009,7 +1009,7 @@ static int vioscsi_tran_pkt_constructor(struct scsi_pkt *pkt, scsi_hba_tran_t *t
     struct vioscsi_request *req = pkt->pkt_ha_private;
     //struct viocsi_softc *sc = tran->tran_hba_private;
     struct vioscsi_softc *sc;
-    sc = &tran->tran_hba_private;
+    sc = tran->tran_hba_private;
 
     (void) memset(req, 0, sizeof(*req));
     req->req_pkt = pkt;
@@ -1035,7 +1035,6 @@ static int vioscsi_tran_pkt_constructor(struct scsi_pkt *pkt, scsi_hba_tran_t *t
     //    return 0;
     //  }
 
-        int ret = 0;
         struct vioscsi_buffer *buf;
         buf = &req->virtio_headers_buf;
         buf->state = VIRTIO_SCSI_BUFFER_FREE;
@@ -1047,7 +1046,7 @@ static int vioscsi_tran_pkt_constructor(struct scsi_pkt *pkt, scsi_hba_tran_t *t
 
         // inlining
         int err;
-        int buffer_size = 1024;
+        size_t buffer_size = 1024;
         size_t len;
 
         if (buf->state != VIRTIO_SCSI_BUFFER_FREE)
