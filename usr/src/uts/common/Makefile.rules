@@ -1492,6 +1492,10 @@ $(OBJS_DIR)/%.o:		$(UTSBASE)/common/io/vioblk/%.c
 $(OBJS_DIR)/%.o:		$(UTSBASE)/common/io/vioif/%.c
 	$(COMPILE.c) -o $@ $<
 	$(CTFCONVERT_O)
+
+$(OBJS_DIR)/%.o:		$(UTSBASE)/common/io/vioscsi/%.c
+	$(COMPILE.c) -o $@ $<
+	$(CTFCONVERT_O)
 #
 # krtld must refer to its own bzero/bcopy until the kernel is fully linked
 #
@@ -2763,6 +2767,9 @@ $(LINTS_DIR)/%.ln:		$(UTSBASE)/common/io/vioblk/%.c
 	@($(LHEAD) $(LINT.c) $< $(LTAIL))
 
 $(LINTS_DIR)/%.ln:		$(UTSBASE)/common/io/vioif/%.c
+	@($(LHEAD) $(LINT.c) $< $(LTAIL))
+
+$(LINTS_DIR)/%.ln:		$(UTSBASE)/common/io/vioscsi/%.c
 	@($(LHEAD) $(LINT.c) $< $(LTAIL))
 
 ZMODLINTFLAGS = -erroff=E_CONSTANT_CONDITION

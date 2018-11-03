@@ -73,8 +73,9 @@
 #include <sys/mac_provider.h>
 #include <sys/mac_ether.h>
 
-#include "virtiovar.h"
-#include "virtioreg.h"
+
+#include <io/virtio/virtiovar.h>
+#include <io/virtio/virtioreg.h>
 
 /* Configuration registers */
 #define	VIRTIO_NET_CONFIG_MAC		0 /* 8bit x 6byte */
