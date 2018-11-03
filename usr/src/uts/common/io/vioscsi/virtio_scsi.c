@@ -26,6 +26,10 @@
 
 
 /**
+ *
+ * Trisk branch from Dmitry at nexenta from 2014 (incomplete, but it's what this is based on
+ * https://github.com/trisk/illumos-gate/blob/vioscsi-fk1/usr/src/uts/common/io/vioscsi/vioscsi.c
+ *
  * Virtio Doc:
  * http://docs.oasis-open.org/virtio/virtio/v1.0/virtio-v1.0.pdf
  *
@@ -926,16 +930,9 @@ static int vioscsi_tran_tgt_probe(struct scsi_device *sd, int (*waitfunc)(void))
 // https://illumos.org/man/9S/scsi_pkt
 static int vioscsi_tran_setup_pkt(struct scsi_pkt *pkt, int (*callback)(caddr_t), caddr_t cbarg) {
     printf("%s: called\n", __func__);
-
-    // ok we got a packet.. but we're not doing anything with it..
-    // lets get a look at it.
-
-    printf("%s: \n", __func__);
-
-
-    // must return 0 on success and -1 on failure.
-    // return 0;
-    return -1;
+    /* nothing to do, all resources are already preallocated from tran_pkt_constructor */
+    (void)scsi_hba_pkt_comp(pkt);
+    return 0;
 }
 
 // done
@@ -949,15 +946,16 @@ static void vioscsi_tran_teardown_pkt(struct scsi_pkt *pkt) {
 static int vioscsi_tran_pkt_constructor(struct scsi_pkt *pkt, scsi_hba_tran_t *tran, int kmflags) {
     printf("%s: called\n", __func__);
     struct vioscsi_request *req = pkt->pkt_ha_private;
-    //struct viocsi_softc *sc = tran->tran_hba_private;
     struct vioscsi_softc *sc;
     sc = tran->tran_hba_private;
 
+    printf("%s: calling memset\n", __func__);
     (void) memset(req, 0, sizeof(*req));
     req->req_pkt = pkt;
 
     struct vioscsi_buffer *buf;
     buf = &req->virtio_headers_buf;
+    printf("%s: setting buf->state to VIRTIO_SCSI_BUFFER_FREE\n", __func__);
     buf->state = VIRTIO_SCSI_BUFFER_FREE;
 
     // inlining
@@ -965,24 +963,33 @@ static int vioscsi_tran_pkt_constructor(struct scsi_pkt *pkt, scsi_hba_tran_t *t
     size_t buffer_size = 1024;
     size_t len;
 
-    if (buf->state != VIRTIO_SCSI_BUFFER_FREE)
+    if (buf->state != VIRTIO_SCSI_BUFFER_FREE) {
+        printf("%s: THIS WILL NEVER HAPPEN LOOK ABOVE.\n", __func__);
         return ENOMEM;
+    }
 
     err = ddi_dma_alloc_handle(sc->sc_dev, &vioscsi_data_dma_attr, DDI_DMA_SLEEP, NULL, &buf->buffer_dmah);
-    if (err != DDI_SUCCESS)
+    if (err != DDI_SUCCESS) {
+        printf("%s: ddi_dma_alloc_handle_failed.  returning ENOMEM\n", __func__);
         return ENOMEM;
+    }
 
     err = ddi_dma_mem_alloc(buf->buffer_dmah, buffer_size, &vioscsi_acc_attr, DDI_DMA_STREAMING, DDI_DMA_SLEEP, NULL, &buf->buffer_virt, &len, &buf->buffer_acch);
-    if (err != DDI_SUCCESS)
+    if (err != DDI_SUCCESS) {
+        printf("%s: ddi_dma_mem_alloc_failed, releasing, and returning ENOMEM\n", __func__);
         goto unbind_handle;
+    }
 
     err = ddi_dma_addr_bind_handle(buf->buffer_dmah, NULL, buf->buffer_virt, len, DDI_DMA_READ | DDI_DMA_WRITE, DDI_DMA_SLEEP, NULL, &buf->buffer_dmac, &buf->buffer_ncookies);
-    if (err != DDI_SUCCESS)
+    if (err != DDI_SUCCESS) {
+        printf("%s: ddi_dma_addr_bind_handle failed, releasing, and returning ENOMEM\n", __func__);
         goto release_dma_mem;
+    }
 
     // Success Case, we made it to here.
     buf->state = VIRTIO_SCSI_BUFFER_ALLOCATED;
     buf->buffer_size = buffer_size;
+    printf("%s: We made the success case, continuing.\n", __func__);
     return 0;
 
 unbind_handle:
