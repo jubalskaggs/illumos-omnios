@@ -20,6 +20,8 @@
 
 #include <io/virtio/virtiovar.h>
 #include <io/virtio/virtioreg.h>
+#include <io/vioscsi/virtio_scsi.h>
+//#include <io/vioscsi/virtio_scsivar.h>
 
 
 
@@ -197,87 +199,6 @@ fffffffffbc7ac00 unix:_locore_start+90 ()
 
 
 
-/**
-  * ----------------------------------------------------------------------------------------
-  * BEGIN DEFINES
-  */
-
-// use these instead of the below
-#include <io/vioscsi/virtio_scsi.h>
-
-//#include <io/vioscsi/virtio_scsivar.h>
-
-
-///* Feature bits */
-//#define VIRTIO_SCSI_F_INOUT                     (0x1 << 0)
-//#define VIRTIO_SCSI_F_HOTPLUG                   (0x1 << 1)
-
-///* registers offset in bytes */
-//#define VIRTIO_SCSI_CFG_NUM_QUEUES              0
-//#define VIRTIO_SCSI_CFG_SEG_MAX                 4
-//#define VIRTIO_SCSI_CFG_MAX_SECTORS             8
-//#define VIRTIO_SCSI_CFG_CMD_PER_LUN             12
-//#define VIRTIO_SCSI_CFG_EVI_SIZE                16
-//#define VIRTIO_SCSI_CFG_SENSE_SIZE              20
-//#define VIRTIO_SCSI_CFG_CDB_SIZE                24
-//#define VIRTIO_SCSI_CFG_MAX_CHANNEL             28
-//#define VIRTIO_SCSI_CFG_MAX_TARGET              32
-//#define VIRTIO_SCSI_CFG_MAX_LUN                 36
-
-///* response codes */
-//#define VIRTIO_SCSI_S_OK                        0
-//#define VIRTIO_SCSI_S_FUNCTION_COMPLETED        0
-//#define VIRTIO_SCSI_S_OVERRUN                   1
-//#define VIRTIO_SCSI_S_ABORTED                   2
-//#define VIRTIO_SCSI_S_BAD_TARGET                3
-//#define VIRTIO_SCSI_S_RESET                     4
-//#define VIRTIO_SCSI_S_BUSY                      5
-//#define VIRTIO_SCSI_S_TRANSPORT_FAILURE         6
-//#define VIRTIO_SCSI_S_TARGET_FAILURE            7
-//#define VIRTIO_SCSI_S_NEXUS_FAILURE             8
-//#define VIRTIO_SCSI_S_FAILURE                   9
-//#define VIRTIO_SCSI_S_FUNCTION_SUCCEEDED        10
-//#define VIRTIO_SCSI_S_FUNCTION_REJECTED         11
-//#define VIRTIO_SCSI_S_INCORRECT_LUN             12
-
-///* Controlq type codes */
-//#define VIRTIO_SCSI_T_TMF                       0
-//#define VIRTIO_SCSI_T_AN_QUERY                  1
-//#define VIRTIO_SCSI_T_AN_SUBSCRIBE              2
-
-///* events */
-//#define VIRTIO_SCSI_T_EVENTS_MISSED             0x80000000
-//#define VIRTIO_SCSI_T_NO_EVENT                  0
-//#define VIRTIO_SCSI_T_TRANSPORT_RESET           1
-//#define VIRTIO_SCSI_T_ASYNC_NOTIFY              2
-
-//#define VIOSCSI_MAX_TARGET                      256
-
-///*reasons of reset event */
-//#define VIRTIO_SCSI_EVT_RESET_HARD              0
-//#define VIRTIO_SCSI_EVT_RESET_RESCAN            1
-//#define VIRTIO_SCSI_EVT_RESET_REMOVED           2
-
-
-
-///* new from fbsd */
-//#define VIRTIO_SCSI_S_SIMPLE                    0
-//#define VIRTIO_SCSI_S_ORDERED                   1
-//#define VIRTIO_SCSI_S_HEAD                      2
-//#define VIRTIO_SCSI_S_ACA                       3
-
-//#ifndef __packed
-//#define __packed __attribute__((packed))
-//#endif
-
-/**
-  * END DEFINES
-  * ----------------------------------------------------------------------------------------
-  */
-
-
-
-
 
 
 
@@ -288,7 +209,7 @@ fffffffffbc7ac00 unix:_locore_start+90 ()
  * ----------------------------------------------------------------------------------------
  * BEGIN DATA STRUCTURES
  */
-/* virtio SCSI command request */
+
 
 
 struct vioscsi_buffer {
@@ -441,6 +362,7 @@ static struct vioscsi_softc *global_virtio_scsi_softc;
  */
 
 
+// ----------------- THESE NEED WORK
 // done
 static int vioscsi_tran_abort(struct scsi_address *ap, struct scsi_pkt *pkt) {
     /* IMO WE DON'T need tran_abort for VIRTIO_SCSI case */
@@ -452,6 +374,51 @@ static int vioscsi_tran_bus_reset(dev_info_t *hba_dip, int level) {
     /* TODO: implement tran_bus_reset? */
     return DDI_FAILURE;
 }
+
+// done
+static int vioscsi_tran_bus_quiesce(dev_info_t *hba_dip) {
+    return DDI_SUCCESS;
+}
+
+// done
+static int vioscsi_tran_reset(struct scsi_address *ap, int level) {
+    return DDI_FAILURE;
+}
+
+// done
+static int vioscsi_tran_reset_notify(struct scsi_address *ap, int flags, void (*callback)(caddr_t), caddr_t arg) {
+    return DDI_FAILURE;
+}
+
+// done
+static void vioscsi_tran_sync_pkt(struct scsi_address *ap, struct scsi_pkt *pkt) {
+    return;
+}
+
+// done
+static void vioscsi_tran_tgt_free(dev_info_t *hba_dip, dev_info_t *tgt_dip, scsi_hba_tran_t *hba_tran, struct scsi_device *sd) {
+    return;
+}
+
+// done
+static int vioscsi_tran_bus_unquiesce(dev_info_t *hba_dip) {
+    return DDI_SUCCESS;
+}
+
+// done https://illumos.org/man/9E/tran_setup_pkt
+static int vioscsi_tran_setup_pkt(struct scsi_pkt *pkt, int (*callback)(caddr_t), caddr_t arg) {
+    return 0;
+}
+
+// done
+static void vioscsi_tran_teardown_pkt(struct scsi_pkt *pkt) {
+    return;
+}
+
+// ------------------- END THESE NEED WORK
+
+
+
 
 /* not implemented */
 /* static void vioscsi_tran_destroy_pkt(struct scsi_address *ap, struct scsi_pkt *pkt); */
@@ -556,24 +523,6 @@ static int vioscsi_tran_getcap(struct scsi_address *ap, char *cap, int whom) {
     return (rval);
 }
 
-/* not implemented */
-/*struct scsi_pkt *vioscsi_init_pkt(struct scsi_address *ap,struct scsi_pkt *pkt, struct buf *bp, int cmdlen,int statuslen, int tgtlen, intflags, int (*callback,caddr_t),caddr_t arg);*/
-
-// done
-static int vioscsi_tran_bus_quiesce(dev_info_t *hba_dip) {
-    return DDI_SUCCESS;
-}
-
-// done
-static int vioscsi_tran_reset(struct scsi_address *ap, int level) {
-    return DDI_FAILURE;
-}
-
-// done
-static int vioscsi_tran_reset_notify(struct scsi_address *ap, int flags, void (*callback)(caddr_t), caddr_t arg) {
-    return DDI_FAILURE;
-}
-
 // done
 static int vioscsi_tran_setcap(struct scsi_address *ap, char *cap, int value, int whom) {
     int rval = 1;
@@ -665,11 +614,7 @@ uint_t vioscsi_intr_handler(caddr_t arg1, caddr_t arg2) {
     return (DDI_INTR_CLAIMED);
 }
 
-/**
- * @brief vioscsi_register_ints
- * @param sc
- * @return
- */
+// RIGHT HERE TOO!
 static int vioscsi_register_ints(struct vioscsi_softc *sc) {
     printf("%s: called\n", __func__);
     int ret;
@@ -840,18 +785,6 @@ static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
     return (TRAN_ACCEPT);
 }
 
-// done
-static void vioscsi_tran_sync_pkt(struct scsi_address *ap, struct scsi_pkt *pkt) {
-    return;
-}
-
-// done
-static void vioscsi_tran_tgt_free(dev_info_t *hba_dip, dev_info_t *tgt_dip, scsi_hba_tran_t *hba_tran, struct scsi_device *sd) {
-    return;
-}
-
-
-
 // helper for viosci_tran_tgt_init()
 static int vioscsi_name_node(dev_info_t *dip, char *name, int len) {
     printf("%s: called\n", __func__);
@@ -962,23 +895,6 @@ static int vioscsi_tran_tgt_probe(struct scsi_device *sd, int (*waitfunc)(void))
     return scsi_hba_probe(sd, waitfunc);
 }
 
-// done
-static int vioscsi_tran_bus_unquiesce(dev_info_t *hba_dip) {
-    return DDI_SUCCESS;
-}
-
-
-
-/** EXTRAS https://illumos.org/man/9E/tran_setup_pkt */
-// done
-static int vioscsi_tran_setup_pkt(struct scsi_pkt *pkt, int (*callback)(caddr_t), caddr_t arg) {
-    return 0;
-}
-
-// done
-static void vioscsi_tran_teardown_pkt(struct scsi_pkt *pkt) {
-    return;
-}
 
 // helper for vioscsi_tran_pkt_constructor
 static int vioscsi_buffer_setup(struct vioscsi_softc *sc, struct vioscsi_buffer* vb, size_t buffer_size) {
@@ -1270,7 +1186,8 @@ static int vioscsi_tran_bus_config(dev_info_t *hba_dip, uint_t flags, ddi_bus_co
     printf("%s: entered\n", __func__);
     int circ;
     int ret = DDI_SUCCESS;
-    int tgt, lun;
+    uint32_t tgt;
+    uint32_t lun;
 
     struct vioscsi_softc *sc = global_virtio_scsi_softc;
     //struct vioscsi_softc *sc;
@@ -1313,14 +1230,16 @@ static int vioscsi_tran_bus_config(dev_info_t *hba_dip, uint_t flags, ddi_bus_co
 
             if (op == BUS_CONFIG_DRIVER) {
                 printf("%s: op is BUS_CONFIG_DRIVER\n", __func__);
-            } else {
+            } else if (op == BUS_CONFIG_ALL) {
                 printf("%s: op is BUS_CONFIG_ALL\n", __func__);
+            } else {
+                printf("%s: op is unknown, should be BUS_CONFIG_DRIVER or BUS_CONFIG_ALL\n", __func__);
             }
 
-            //uint32_t tgt; [jubal commented this out.. its declared above.
+            //uint32_t tgt; [jubal] commented this out.. it was declared above... as an int. so it's a uint32_t now.
 
             printf("%s: sc->max_target == %d\n", __func__, sc->sc_max_target);
-            for (tgt = 0; tgt  < sc->sc_max_target; tgt ++) {
+            for (tgt = 0; tgt  < sc->sc_max_target; tgt++) {
                 printf("%s: calling virtio_scsi_config_lun tgt==%d\n", __func__, tgt);
                 (void) vioscsi_config_lun(sc, tgt, 0, NULL);
             }
@@ -1387,15 +1306,7 @@ out:
  *  ddi_root_node():    Get the root of the dev_info tree
  */
 
-/**
- * @brief vioscsi_getinfo
- * @param devinfo
- * @param cmd
- * @param dev
- * @param resultp
- * @return
- * @todo SEE FIXME!
- */
+// TODO: see FIXME!
 static int vioscsi_getinfo(dev_info_t *devinfo, ddi_info_cmd_t cmd, void *dev /*this is a dev_t?*/, void **resultp) {
     int err = DDI_SUCCESS;
 
@@ -1431,12 +1342,7 @@ static int vioscsi_getinfo(dev_info_t *devinfo, ddi_info_cmd_t cmd, void *dev /*
     return err;
 }
 
-/**
- * @brief vioscsi_attach
- * @param devinfo
- * @param cmd
- * @return
- */
+
 static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     printf("%s: called\n", __func__);
     int err = DDI_SUCCESS;
@@ -1468,7 +1374,7 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     //    printf("%s: ddi_get_instance() returned NULL\n", __func__);
     //    return DDI_FAILURE;
     //}
-    // so we use this?
+    // so we use this global that we need to kill still.?
     instance = ddi_get_instance(devinfo);
 
 
@@ -1576,24 +1482,6 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     hba_tran->tran_bus_config       = vioscsi_tran_bus_config;
 
     printf("%s: RIGHT BEFORE scsi_hba_attach_setup!\n", __func__);
-    /*
-     * panicstr = BAD TRAP: type=d (#gp General protection) rp=fffffe000318b770 addr=0
-     * panicstack = unix:die+89 () |
-     * unix:trap+a60 () |
-     * unix:cmntrap+e6 () |
-     * scsi:scsi_init_pkt+60 () |
-     * scsi:scsi_hba_probe_pi+a0 () |
-     * scsi:scsi_hba_probe+17 () |
-     * vioscsi:vioscsi_probe_lun+47 () |
-     * vioscsi:vioscsi_config_lun+130 () |
-     * vioscsi:vioscsi_tran_bus_config+11a () |
-     * scsi:scsi_hba_bus_config+70 () |
-     * genunix:devi_config_common+a5 () |
-     * genunix:mt_config_thread+58 () |
-     * unix:thread_start+8 () |
-     */
-
-
 
     err = scsi_hba_attach_setup(devinfo, &vioscsi_data_dma_attr, hba_tran, SCSI_HBA_TRAN_CLONE | SCSI_HBA_TRAN_CDB | SCSI_HBA_TRAN_SCB);
     if (err != DDI_SUCCESS) {

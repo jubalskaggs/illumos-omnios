@@ -20,6 +20,70 @@
 #include <sys/types.h>
 
 
+///* Feature bits */
+//#define VIRTIO_SCSI_F_INOUT                     (0x1 << 0)
+//#define VIRTIO_SCSI_F_HOTPLUG                   (0x1 << 1)
+
+// ---------------- OLD ONES -----------------------------------------
+///* registers offset in bytes */
+//#define VIRTIO_SCSI_CFG_NUM_QUEUES              0
+//#define VIRTIO_SCSI_CFG_SEG_MAX                 4
+//#define VIRTIO_SCSI_CFG_MAX_SECTORS             8
+//#define VIRTIO_SCSI_CFG_CMD_PER_LUN             12
+//#define VIRTIO_SCSI_CFG_EVI_SIZE                16
+//#define VIRTIO_SCSI_CFG_SENSE_SIZE              20
+//#define VIRTIO_SCSI_CFG_CDB_SIZE                24
+//#define VIRTIO_SCSI_CFG_MAX_CHANNEL             28
+//#define VIRTIO_SCSI_CFG_MAX_TARGET              32
+//#define VIRTIO_SCSI_CFG_MAX_LUN                 36
+
+///* response codes */
+//#define VIRTIO_SCSI_S_OK                        0
+//#define VIRTIO_SCSI_S_FUNCTION_COMPLETED        0
+//#define VIRTIO_SCSI_S_OVERRUN                   1
+//#define VIRTIO_SCSI_S_ABORTED                   2
+//#define VIRTIO_SCSI_S_BAD_TARGET                3
+//#define VIRTIO_SCSI_S_RESET                     4
+//#define VIRTIO_SCSI_S_BUSY                      5
+//#define VIRTIO_SCSI_S_TRANSPORT_FAILURE         6
+//#define VIRTIO_SCSI_S_TARGET_FAILURE            7
+//#define VIRTIO_SCSI_S_NEXUS_FAILURE             8
+//#define VIRTIO_SCSI_S_FAILURE                   9
+//#define VIRTIO_SCSI_S_FUNCTION_SUCCEEDED        10
+//#define VIRTIO_SCSI_S_FUNCTION_REJECTED         11
+//#define VIRTIO_SCSI_S_INCORRECT_LUN             12
+
+///* Controlq type codes */
+//#define VIRTIO_SCSI_T_TMF                       0
+//#define VIRTIO_SCSI_T_AN_QUERY                  1
+//#define VIRTIO_SCSI_T_AN_SUBSCRIBE              2
+
+///* events */
+//#define VIRTIO_SCSI_T_EVENTS_MISSED             0x80000000
+//#define VIRTIO_SCSI_T_NO_EVENT                  0
+//#define VIRTIO_SCSI_T_TRANSPORT_RESET           1
+//#define VIRTIO_SCSI_T_ASYNC_NOTIFY              2
+
+//#define VIOSCSI_MAX_TARGET                      256
+
+///*reasons of reset event */
+//#define VIRTIO_SCSI_EVT_RESET_HARD              0
+//#define VIRTIO_SCSI_EVT_RESET_RESCAN            1
+//#define VIRTIO_SCSI_EVT_RESET_REMOVED           2
+
+
+
+///* new from fbsd */
+//#define VIRTIO_SCSI_S_SIMPLE                    0
+//#define VIRTIO_SCSI_S_ORDERED                   1
+//#define VIRTIO_SCSI_S_HEAD                      2
+//#define VIRTIO_SCSI_S_ACA                       3
+
+//#ifndef __packed
+//#define __packed __attribute__((packed))
+//#endif
+// ----------------- END OLD ONES ------------------------------------
+
 /* Configuration registers */
 #define VIRTIO_SCSI_CONFIG_NUM_QUEUES       0 /* 32bit */
 #define VIRTIO_SCSI_CONFIG_SEG_MAX          4 /* 32bit */
@@ -87,7 +151,7 @@
 //} __packed;
 ///* Followed by data-in. */
 
-
+/* virtio SCSI command request */
 struct vioscsi_cmd_req {
     uint8_t lun[8];                                             /* logical unit number */
     uint64_t tag;                                               /* command identifier */
@@ -96,6 +160,7 @@ struct vioscsi_cmd_req {
     uint8_t crn;
     uint8_t cdb[VIRTIO_SCSI_CDB_SIZE];
 } __packed;
+/* followed by data-out */
 
 /* virtio SCSI response header structure, followed by sense data and data-in */
 struct vioscsi_cmd_resp {
@@ -109,34 +174,34 @@ struct vioscsi_cmd_resp {
 /* Followed by data-in. */
 
 /*Task managment request */
-struct vioscsi_ctrl_tmf_req {
-    uint32_t type;
-    uint32_t subtype;
-    uint8_t  lun[8];
-    uint64_t tag;
-} __packed;
+//struct vioscsi_ctrl_tmf_req {
+//    uint32_t type;
+//    uint32_t subtype;
+//    uint8_t  lun[8];
+//    uint64_t tag;
+//} __packed;
 
-struct vioscsi_ctrl_tmf_resp {
-    uint8_t response;
-} __packed;
+//struct vioscsi_ctrl_tmf_resp {
+//    uint8_t response;
+//} __packed;
 
-/* asynchronous notification query/subscription */
-struct vioscsi_ctrl_an_req {
-    uint32_t type;
-    uint8_t lun[8];
-    uint32_t event_requested;
-} __packed;
+///* asynchronous notification query/subscription */
+//struct vioscsi_ctrl_an_req {
+//    uint32_t type;
+//    uint8_t lun[8];
+//    uint32_t event_requested;
+//} __packed;
 
-struct vioscsi_ctrl_an_resp {
-    uint32_t event_actual;
-    uint8_t	response;
-} __packed;
+//struct vioscsi_ctrl_an_resp {
+//    uint32_t event_actual;
+//    uint8_t	response;
+//} __packed;
 
-struct vioscsi_event {
-    uint32_t event;
-    uint8_t lun[8];
-    uint32_t reason;
-} __packed;
+//struct vioscsi_event {
+//    uint32_t event;
+//    uint8_t lun[8];
+//    uint32_t reason;
+//} __packed;
 
 
 
