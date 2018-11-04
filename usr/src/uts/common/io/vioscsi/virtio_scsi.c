@@ -1724,8 +1724,13 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     // sc_max_seg = 126                 config_4
     // sc_max_target = 16383            config_4
 
-    // now we're switched to config_2
-
+    // now we're switched to config_2 things look better.
+    // sc_max_lun = 65536               config_2
+    // sc_max_channel = 16711680
+    // sc_max_req = 8388480
+    // sc_cdb_size = 32
+    // sc_max_seg = 126
+    // sc_max_target = 16383
 
     // register interrupts.
     if (vioscsi_register_ints(sc)) {
