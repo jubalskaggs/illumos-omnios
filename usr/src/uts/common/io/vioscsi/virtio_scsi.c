@@ -670,7 +670,6 @@ uint_t vioscsi_intr_handler(caddr_t arg1, caddr_t arg2) {
                 break;
             case VIRTIO_SCSI_S_INCORRECT_LUN:
                 printf("%s: resp->response is VIRTIO_SCSI_S_INCORRECT_LUN\n", __func__);
-                pkt->pkt_reason = CMD_
                 break;
             default:
                 printf("%s: setting pkt->pkt_reason = CMD_TRAN_ERR\n", __func__);
