@@ -1598,6 +1598,10 @@ static int vioscsi_getinfo(dev_info_t *devinfo, ddi_info_cmd_t cmd, void *dev /*
     return err;
 }
 
+
+
+
+
 static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     printf("%s: called\n", __func__);
     int err = DDI_SUCCESS;
@@ -1673,7 +1677,12 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     virtio_set_status(&sc->sc_virtio, VIRTIO_CONFIG_DEVICE_STATUS_DRIVER);
 
     // TODO: get device features and stuff.
-    sc->sc_max_target   = virtio_read_device_config_2(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_TARGET);
+
+    // do like vioif does
+
+
+
+    sc->sc_max_target   = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_TARGET);
     sc->sc_max_lun      = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_LUN);
     sc->sc_max_channel  = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_CHANNEL);
     sc->sc_max_req      = (sc->sc_max_lun * virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_CMD_PER_LUN));

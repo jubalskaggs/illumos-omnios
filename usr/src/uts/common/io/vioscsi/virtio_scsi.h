@@ -93,8 +93,10 @@
 #define VIRTIO_SCSI_CONFIG_SENSE_SIZE		20 /* 32bit */
 #define VIRTIO_SCSI_CONFIG_CDB_SIZE         24 /* 32bit */
 #define VIRTIO_SCSI_CONFIG_MAX_CHANNEL		28 /* 16bit */
-#define VIRTIO_SCSI_CONFIG_MAX_TARGET		30 /* 16bit */
-#define VIRTIO_SCSI_CONFIG_MAX_LUN          32 /* 32bit */
+//#define VIRTIO_SCSI_CONFIG_MAX_TARGET		30 /* 16bit */
+#define VIRTIO_SCSI_CONFIG_MAX_TARGET       32
+//#define VIRTIO_SCSI_CONFIG_MAX_LUN          32 /* 32bit */
+#define VIRTIO_SCSI_CONFIG_MAX_LUN          36
 
 /* Feature bits */
 #define VIRTIO_SCSI_F_INOUT                 (0x1 << 0)
