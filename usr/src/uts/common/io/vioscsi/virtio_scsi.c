@@ -1690,6 +1690,7 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     // so, we should set sc->config_offset to VIRTIO_CONFIG_DEVICE_NOMSIX?
     //sc->config_offset = VIRTIO_CONFIG_DEVICE_CONFIG_NOMSIX);
     // or vsc->sc_config_offset = VIRTIO_CONFIG_DEVICE_CONFIG_NOMSIX
+    vsc->sc_config_offset = VIRTIO_CONFIG_DEVICE_CONFIG_NOMSIX;
 
     // TODO: get device features and stuff.
     //sc->sc_max_lun      = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_LUN);
