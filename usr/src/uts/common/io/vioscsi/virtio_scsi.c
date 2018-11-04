@@ -27,6 +27,11 @@
 
 /**
  *
+ * kvm args:
+ *  -device virtio-scsi-pci,id=scsi0,bus=pci.0,addr=0x8
+ *  -device scsi-hd,bus=scsi0.0,channel=0,scsi-id=0,lun=0,drive=drive-scsi0-0-0-0,id=scsi0-0-0-0
+ *  -drive file=/var/lib/libvirt/images/omnios-1.qcow2,format=qcow2,if=none,id=drive-scsi0-0-0-0
+ *
  * mdb -k ::prtconf
  *
  * -- snip --
@@ -1679,23 +1684,36 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     virtio_set_status(&sc->sc_virtio, VIRTIO_CONFIG_DEVICE_STATUS_DRIVER);
     printf("%s: did a device reset, and called set_status\n", __func__);
 
+
+    // ok, we're blowing an ASSERT(sc->config_offset) in these virtio_read_device_config func's
+    // likely due to MSI/MSIX..  we don't go msix until we virtio_enable_ints (below)
+    // so, we should set sc->config_offset to VIRTIO_CONFIG_DEVICE_NOMSIX?
+    //sc->config_offset = VIRTIO_CONFIG_DEVICE_CONFIG_NOMSIX);
+    // or vsc->sc_config_offset = VIRTIO_CONFIG_DEVICE_CONFIG_NOMSIX
+
     // TODO: get device features and stuff.
-    sc->sc_max_lun      = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_LUN);
+    //sc->sc_max_lun      = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_LUN);
+    sc->sc_max_lun          = virtio_read_device_config_4(vsc, VIRTIO_SCSI_CONFIG_MAX_LUN);
     printf("%s: sc_max_lun == %d\n", __func__, sc->sc_max_lun);
 
-    sc->sc_max_channel  = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_CHANNEL);
+    //sc->sc_max_channel  = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_CHANNEL);
+    sc->sc_max_channel  = virtio_read_device_config_4(vsc, VIRTIO_SCSI_CONFIG_MAX_CHANNEL);
     printf("%s: sc_max_channel == %d\n", __func__, sc->sc_max_channel);
 
-    sc->sc_max_req      = (sc->sc_max_lun * virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_CMD_PER_LUN));
+    //sc->sc_max_req      = (sc->sc_max_lun * virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_CMD_PER_LUN));
+    sc->sc_max_req      = (sc->sc_max_lun * virtio_read_device_config_4(vsc, VIRTIO_SCSI_CONFIG_CMD_PER_LUN));
     printf("%s: sc_max_req == %d\n", __func__, sc->sc_max_req);
 
-    sc->sc_cdb_size     = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_CDB_SIZE);
+    //sc->sc_cdb_size     = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_CDB_SIZE);
+    sc->sc_cdb_size     = virtio_read_device_config_4(vsc, VIRTIO_SCSI_CONFIG_CDB_SIZE);
     printf("%s: sc_cdb_size == %d\n", __func__, sc->sc_cdb_size);
 
-    sc->sc_max_seg      = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_SEG_MAX);
+    //sc->sc_max_seg      = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_SEG_MAX);
+    sc->sc_max_seg      = virtio_read_device_config_4(vsc, VIRTIO_SCSI_CONFIG_SEG_MAX);
     printf("%s: sc_max_seg == %d\n", __func__, sc->sc_max_seg);
 
-    sc->sc_max_target   = virtio_read_device_config_2(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_TARGET);
+    //sc->sc_max_target   = virtio_read_device_config_2(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_TARGET);
+    sc->sc_max_target   = virtio_read_device_config_2(vsc, VIRTIO_SCSI_CONFIG_MAX_TARGET);
     printf("%s: sc_max_target == %d\n", __func__, sc->sc_max_target);
 
     // register interrupts.

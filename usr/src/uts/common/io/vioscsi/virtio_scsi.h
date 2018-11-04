@@ -26,50 +26,50 @@
 
 // ---------------- OLD ONES -----------------------------------------
 ///* registers offset in bytes */
-//#define VIRTIO_SCSI_CFG_NUM_QUEUES              0
-//#define VIRTIO_SCSI_CFG_SEG_MAX                 4
-//#define VIRTIO_SCSI_CFG_MAX_SECTORS             8
-//#define VIRTIO_SCSI_CFG_CMD_PER_LUN             12
-//#define VIRTIO_SCSI_CFG_EVI_SIZE                16
-//#define VIRTIO_SCSI_CFG_SENSE_SIZE              20
-//#define VIRTIO_SCSI_CFG_CDB_SIZE                24
-//#define VIRTIO_SCSI_CFG_MAX_CHANNEL             28
-//#define VIRTIO_SCSI_CFG_MAX_TARGET              32
-//#define VIRTIO_SCSI_CFG_MAX_LUN                 36
+#define VIRTIO_SCSI_CONFIG_NUM_QUEUES              0
+#define VIRTIO_SCSI_CONFIG_SEG_MAX                 4
+#define VIRTIO_SCSI_CONFIG_MAX_SECTORS             8
+#define VIRTIO_SCSI_CONFIG_CMD_PER_LUN             12
+#define VIRTIO_SCSI_CONFIG_EVI_SIZE                16
+#define VIRTIO_SCSI_CONFIG_SENSE_SIZE              20
+#define VIRTIO_SCSI_CONFIG_CDB_SIZE                24
+#define VIRTIO_SCSI_CONFIG_MAX_CHANNEL             28
+#define VIRTIO_SCSI_CONFIG_MAX_TARGET              32
+#define VIRTIO_SCSI_CONFIG_MAX_LUN                 36
 
-///* response codes */
-//#define VIRTIO_SCSI_S_OK                        0
-//#define VIRTIO_SCSI_S_FUNCTION_COMPLETED        0
-//#define VIRTIO_SCSI_S_OVERRUN                   1
-//#define VIRTIO_SCSI_S_ABORTED                   2
-//#define VIRTIO_SCSI_S_BAD_TARGET                3
-//#define VIRTIO_SCSI_S_RESET                     4
-//#define VIRTIO_SCSI_S_BUSY                      5
-//#define VIRTIO_SCSI_S_TRANSPORT_FAILURE         6
-//#define VIRTIO_SCSI_S_TARGET_FAILURE            7
-//#define VIRTIO_SCSI_S_NEXUS_FAILURE             8
-//#define VIRTIO_SCSI_S_FAILURE                   9
-//#define VIRTIO_SCSI_S_FUNCTION_SUCCEEDED        10
-//#define VIRTIO_SCSI_S_FUNCTION_REJECTED         11
-//#define VIRTIO_SCSI_S_INCORRECT_LUN             12
+/* response codes */
+#define VIRTIO_SCSI_S_OK                        0
+#define VIRTIO_SCSI_S_FUNCTION_COMPLETED        0
+#define VIRTIO_SCSI_S_OVERRUN                   1
+#define VIRTIO_SCSI_S_ABORTED                   2
+#define VIRTIO_SCSI_S_BAD_TARGET                3
+#define VIRTIO_SCSI_S_RESET                     4
+#define VIRTIO_SCSI_S_BUSY                      5
+#define VIRTIO_SCSI_S_TRANSPORT_FAILURE         6
+#define VIRTIO_SCSI_S_TARGET_FAILURE            7
+#define VIRTIO_SCSI_S_NEXUS_FAILURE             8
+#define VIRTIO_SCSI_S_FAILURE                   9
+#define VIRTIO_SCSI_S_FUNCTION_SUCCEEDED        10
+#define VIRTIO_SCSI_S_FUNCTION_REJECTED         11
+#define VIRTIO_SCSI_S_INCORRECT_LUN             12
 
-///* Controlq type codes */
-//#define VIRTIO_SCSI_T_TMF                       0
-//#define VIRTIO_SCSI_T_AN_QUERY                  1
-//#define VIRTIO_SCSI_T_AN_SUBSCRIBE              2
+/* Controlq type codes */
+#define VIRTIO_SCSI_T_TMF                       0
+#define VIRTIO_SCSI_T_AN_QUERY                  1
+#define VIRTIO_SCSI_T_AN_SUBSCRIBE              2
 
-///* events */
-//#define VIRTIO_SCSI_T_EVENTS_MISSED             0x80000000
-//#define VIRTIO_SCSI_T_NO_EVENT                  0
-//#define VIRTIO_SCSI_T_TRANSPORT_RESET           1
-//#define VIRTIO_SCSI_T_ASYNC_NOTIFY              2
+/* events */
+#define VIRTIO_SCSI_T_EVENTS_MISSED             0x80000000
+#define VIRTIO_SCSI_T_NO_EVENT                  0
+#define VIRTIO_SCSI_T_TRANSPORT_RESET           1
+#define VIRTIO_SCSI_T_ASYNC_NOTIFY              2
 
-//#define VIOSCSI_MAX_TARGET                      256
+#define VIOSCSI_MAX_TARGET                      256
 
-///*reasons of reset event */
-//#define VIRTIO_SCSI_EVT_RESET_HARD              0
-//#define VIRTIO_SCSI_EVT_RESET_RESCAN            1
-//#define VIRTIO_SCSI_EVT_RESET_REMOVED           2
+/*reasons of reset event */
+#define VIRTIO_SCSI_EVT_RESET_HARD              0
+#define VIRTIO_SCSI_EVT_RESET_RESCAN            1
+#define VIRTIO_SCSI_EVT_RESET_REMOVED           2
 
 
 
@@ -84,43 +84,43 @@
 //#endif
 // ----------------- END OLD ONES ------------------------------------
 
-/* Configuration registers */
-#define VIRTIO_SCSI_CONFIG_NUM_QUEUES       0 /* 32bit */
-#define VIRTIO_SCSI_CONFIG_SEG_MAX          4 /* 32bit */
-#define VIRTIO_SCSI_CONFIG_MAX_SECTORS		8 /* 32bit */
-#define VIRTIO_SCSI_CONFIG_CMD_PER_LUN		12 /* 32bit */
-#define VIRTIO_SCSI_CONFIG_EVENT_INFO_SIZE	16 /* 32bit */
-#define VIRTIO_SCSI_CONFIG_SENSE_SIZE		20 /* 32bit */
-#define VIRTIO_SCSI_CONFIG_CDB_SIZE         24 /* 32bit */
-#define VIRTIO_SCSI_CONFIG_MAX_CHANNEL		28 /* 16bit */
-#define VIRTIO_SCSI_CONFIG_MAX_TARGET		30 /* 16bit */
-#define VIRTIO_SCSI_CONFIG_MAX_LUN          32 /* 32bit */
+///* Configuration registers */
+//#define VIRTIO_SCSI_CONFIG_NUM_QUEUES       0 /* 32bit */
+//#define VIRTIO_SCSI_CONFIG_SEG_MAX          4 /* 32bit */
+//#define VIRTIO_SCSI_CONFIG_MAX_SECTORS		8 /* 32bit */
+//#define VIRTIO_SCSI_CONFIG_CMD_PER_LUN		12 /* 32bit */
+//#define VIRTIO_SCSI_CONFIG_EVENT_INFO_SIZE	16 /* 32bit */
+//#define VIRTIO_SCSI_CONFIG_SENSE_SIZE		20 /* 32bit */
+//#define VIRTIO_SCSI_CONFIG_CDB_SIZE         24 /* 32bit */
+//#define VIRTIO_SCSI_CONFIG_MAX_CHANNEL		28 /* 16bit */
+//#define VIRTIO_SCSI_CONFIG_MAX_TARGET		30 /* 16bit */
+//#define VIRTIO_SCSI_CONFIG_MAX_LUN          32 /* 32bit */
 
-/* Feature bits */
-#define VIRTIO_SCSI_F_INOUT                 (0x1 << 0)
-#define VIRTIO_SCSI_F_HOTPLUG               (0x1 << 1)
+///* Feature bits */
+//#define VIRTIO_SCSI_F_INOUT                 (0x1 << 0)
+//#define VIRTIO_SCSI_F_HOTPLUG               (0x1 << 1)
 
-/* Response status values */
-#define VIRTIO_SCSI_S_OK                    0
-#define VIRTIO_SCSI_S_OVERRUN               1
-#define VIRTIO_SCSI_S_ABORTED               2
-#define VIRTIO_SCSI_S_BAD_TARGET            3
-#define VIRTIO_SCSI_S_RESET                 4
-#define VIRTIO_SCSI_S_BUSY                  5
-#define VIRTIO_SCSI_S_TRANSPORT_FAILURE		6
-#define VIRTIO_SCSI_S_TARGET_FAILURE		7
-#define VIRTIO_SCSI_S_NEXUS_FAILURE         8
-#define VIRTIO_SCSI_S_FAILURE               9
+///* Response status values */
+//#define VIRTIO_SCSI_S_OK                    0
+//#define VIRTIO_SCSI_S_OVERRUN               1
+//#define VIRTIO_SCSI_S_ABORTED               2
+//#define VIRTIO_SCSI_S_BAD_TARGET            3
+//#define VIRTIO_SCSI_S_RESET                 4
+//#define VIRTIO_SCSI_S_BUSY                  5
+//#define VIRTIO_SCSI_S_TRANSPORT_FAILURE		6
+//#define VIRTIO_SCSI_S_TARGET_FAILURE		7
+//#define VIRTIO_SCSI_S_NEXUS_FAILURE         8
+//#define VIRTIO_SCSI_S_FAILURE               9
 
-/* Task attributes */
-#define VIRTIO_SCSI_S_SIMPLE                0
-#define VIRTIO_SCSI_S_ORDERED               1
-#define VIRTIO_SCSI_S_HEAD                  2
-#define VIRTIO_SCSI_S_ACA                   3
+///* Task attributes */
+//#define VIRTIO_SCSI_S_SIMPLE                0
+//#define VIRTIO_SCSI_S_ORDERED               1
+//#define VIRTIO_SCSI_S_HEAD                  2
+//#define VIRTIO_SCSI_S_ACA                   3
 
-/* from solaris one */
-#define VIRTIO_SCSI_CDB_SIZE                32
-#define	VIRTIO_SCSI_SENSE_SIZE              96
+///* from solaris one */
+//#define VIRTIO_SCSI_CDB_SIZE                32
+//#define	VIRTIO_SCSI_SENSE_SIZE              96
 #define VIRTIO_SCSI_BUFFER_ALLOCATED        0x1
 #define VIRTIO_SCSI_BUFFER_FREE             0x2
 
