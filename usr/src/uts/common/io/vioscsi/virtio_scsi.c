@@ -455,6 +455,32 @@ static int vioscsi_tran_getcap(struct scsi_address *ap, char *cap, int whom) {
         return (-1);
     }
 
+
+    /*SCSI_CAP_ARQ;
+    SCSI_CAP_ASCII;
+    SCSI_CAP_CDB_LEN;
+    SCSI_CAP_DISCONNECT;
+    SCSI_CAP_DMA_MAX;
+    SCSI_CAP_DMA_MAX_ARCH;
+    SCSI_CAP_GEOMETRY;
+    SCSI_CAP_INITIATOR_ID;
+    SCSI_CAP_INTERCONNECT_TYPE;
+    SCSI_CAP_LINKED_CMDS;
+    SCSI_CAP_LUN_RESET;
+    SCSI_CAP_MSG_OUT;
+    SCSI_CAP_PARITY;
+    SCSI_CAP_QFULL_RETRIES;
+    SCSI_CAP_QFULL_RETRY_INTERVAL;
+    SCSI_CAP_RESET_NOTIFICATION;
+    SCSI_CAP_SCSI_VERSION;
+    SCSI_CAP_SECTOR_SIZE;
+    SCSI_CAP_SYNCHRONOUS;
+    SCSI_CAP_TAGGED_QING;
+    SCSI_CAP_TOTAL_SECTORS;
+    SCSI_CAP_TRAN_LAYER_RETRIES;
+    SCSI_CAP_UNTAGGED_QING;
+    SCSI_CAP_WIDE_XFER;*/
+
     switch (scsi_hba_lookup_capstr(cap)) {
     case SCSI_CAP_DMA_MAX:
         rval = 4096;
@@ -1647,7 +1673,7 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     virtio_set_status(&sc->sc_virtio, VIRTIO_CONFIG_DEVICE_STATUS_DRIVER);
 
     // TODO: get device features and stuff.
-    sc->sc_max_target   = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_TARGET);
+    sc->sc_max_target   = virtio_read_device_config_2(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_TARGET);
     sc->sc_max_lun      = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_LUN);
     sc->sc_max_channel  = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_CHANNEL);
     sc->sc_max_req      = (sc->sc_max_lun * virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_CMD_PER_LUN));
