@@ -119,8 +119,8 @@
 //#define VIRTIO_SCSI_S_ACA                   3
 
 ///* from solaris one */
-//#define VIRTIO_SCSI_CDB_SIZE                32
-//#define	VIRTIO_SCSI_SENSE_SIZE              96
+#define VIRTIO_SCSI_CDB_SIZE                32
+#define	VIRTIO_SCSI_SENSE_SIZE              96
 #define VIRTIO_SCSI_BUFFER_ALLOCATED        0x1
 #define VIRTIO_SCSI_BUFFER_FREE             0x2
 
