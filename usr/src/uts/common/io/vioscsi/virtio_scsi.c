@@ -1606,8 +1606,8 @@ static int vioscsi_getinfo(dev_info_t *devinfo, ddi_info_cmd_t cmd, void *dev /*
 
 
 
-
 static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
+
     printf("%s: called\n", __func__);
     int err = DDI_SUCCESS;
 
@@ -1641,8 +1641,6 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     // so we use this global that we need to kill still.?
     instance = ddi_get_instance(devinfo);
     printf("%s: got the ddi instance\n", __func__);
-
-
 
     /* TODO: rework static allocation. */
     sc = kmem_zalloc(sizeof(struct vioscsi_softc), KM_SLEEP);
@@ -1683,7 +1681,7 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     virtio_set_status(&sc->sc_virtio, VIRTIO_CONFIG_DEVICE_STATUS_ACK);
     virtio_set_status(&sc->sc_virtio, VIRTIO_CONFIG_DEVICE_STATUS_DRIVER);
     printf("%s: did a device reset, and called set_status\n", __func__);
-
+// ----------- QUESTIONABLE --
 
     // ok, we're blowing an ASSERT(sc->config_offset) in these virtio_read_device_config func's
     // likely due to MSI/MSIX..  we don't go msix until we virtio_enable_ints (below)
@@ -1692,9 +1690,10 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     // or vsc->sc_config_offset = VIRTIO_CONFIG_DEVICE_CONFIG_NOMSIX
     vsc->sc_config_offset = VIRTIO_CONFIG_DEVICE_CONFIG_NOMSIX;
 
+
     // TODO: get device features and stuff.
     //sc->sc_max_lun      = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_LUN);
-    sc->sc_max_lun          = virtio_read_device_config_4(vsc, VIRTIO_SCSI_CONFIG_MAX_LUN);
+    sc->sc_max_lun          = virtio_read_device_config_2(vsc, VIRTIO_SCSI_CONFIG_MAX_LUN);
     printf("%s: sc_max_lun == %d\n", __func__, sc->sc_max_lun);
 
     //sc->sc_max_channel  = virtio_read_device_config_4(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_CHANNEL);
@@ -1716,6 +1715,17 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
     //sc->sc_max_target   = virtio_read_device_config_2(&sc->sc_virtio, VIRTIO_SCSI_CONFIG_MAX_TARGET);
     sc->sc_max_target   = virtio_read_device_config_2(vsc, VIRTIO_SCSI_CONFIG_MAX_TARGET);
     printf("%s: sc_max_target == %d\n", __func__, sc->sc_max_target);
+
+    // what comes out of the above is:
+    // sc_max_lun == -1                 config_4
+    // sc_max_channel = 16711680        config_4
+    // sc_max_req = -128                config_4
+    // sc_cdb_size = 32                 config_4
+    // sc_max_seg = 126                 config_4
+    // sc_max_target = 16383            config_4
+
+    // now we're switched to config_2
+
 
     // register interrupts.
     if (vioscsi_register_ints(sc)) {
@@ -1741,6 +1751,9 @@ static int vioscsi_attach(dev_info_t *devinfo, ddi_attach_cmd_t cmd) {
         printf("%s: virtial_alloc_vq() failed, couldn't setup sc->sc_request_vq\n", __func__);
         goto release_event;
     }
+
+// ------------ END QUESTIONABLE
+
 
     printf("%s: setting up the hba transport callbacks!\n", __func__);
 

@@ -21,8 +21,9 @@
 
 
 ///* Feature bits */
-//#define VIRTIO_SCSI_F_INOUT                     (0x1 << 0)
-//#define VIRTIO_SCSI_F_HOTPLUG                   (0x1 << 1)
+#define VIRTIO_SCSI_F_INOUT                     (0x1 << 0)
+#define VIRTIO_SCSI_F_HOTPLUG                   (0x1 << 1)
+#define	VIRTIO_SCSI_F_CHANGE                    (0x1 << 2)
 
 // ---------------- OLD ONES -----------------------------------------
 ///* registers offset in bytes */
@@ -39,7 +40,6 @@
 
 /* response codes */
 #define VIRTIO_SCSI_S_OK                        0
-#define VIRTIO_SCSI_S_FUNCTION_COMPLETED        0
 #define VIRTIO_SCSI_S_OVERRUN                   1
 #define VIRTIO_SCSI_S_ABORTED                   2
 #define VIRTIO_SCSI_S_BAD_TARGET                3
@@ -63,15 +63,17 @@
 #define VIRTIO_SCSI_T_NO_EVENT                  0
 #define VIRTIO_SCSI_T_TRANSPORT_RESET           1
 #define VIRTIO_SCSI_T_ASYNC_NOTIFY              2
-
-#define VIOSCSI_MAX_TARGET                      256
+#define VIRTIO_SCSI_T_PARAM_CHANGE              3
 
 /*reasons of reset event */
 #define VIRTIO_SCSI_EVT_RESET_HARD              0
 #define VIRTIO_SCSI_EVT_RESET_RESCAN            1
 #define VIRTIO_SCSI_EVT_RESET_REMOVED           2
 
-
+#define VIRTIO_SCSI_S_SIMPLE                   0
+#define VIRTIO_SCSI_S_ORDERED                  1
+#define VIRTIO_SCSI_S_HEAD                     2
+#define VIRTIO_SCSI_S_ACA                      3
 
 ///* new from fbsd */
 //#define VIRTIO_SCSI_S_SIMPLE                    0
@@ -185,7 +187,7 @@ struct vioscsi_ctrl_tmf_resp {
     uint8_t response;
 } __packed;
 
-///* asynchronous notification query/subscription */
+/* asynchronous notification query/subscription */
 struct vioscsi_ctrl_an_req {
     uint32_t type;
     uint8_t lun[8];
@@ -202,8 +204,6 @@ struct vioscsi_event {
     uint8_t lun[8];
     uint32_t reason;
 } __packed;
-
-
 
 
 
