@@ -587,8 +587,11 @@ uint_t vioscsi_intr_handler(caddr_t arg1, caddr_t arg2) {
     /* TODO: push request into the ready queue and schedule taskq */
     printf("%s: entering while loop\n", __func__);
 
+    int loop_cnt = 0;
     while ((ve = virtio_pull_chain(sc->sc_request_vq, &len))) {
          //req = virtio_get_private(ve);
+        printf("%s: pull_chain_loop (%d)\n", __func__, loop_cnt);
+
         req = ve->qe_private;
         ve->qe_private = NULL;
 
@@ -603,15 +606,19 @@ uint_t vioscsi_intr_handler(caddr_t arg1, caddr_t arg2) {
 
             /* virtio scsi processes request sucessfully, check the request SCSI status */
             case VIRTIO_SCSI_S_OK:
-
+                printf("%s: resp->response is VIRTIO_SCSI_S_OK\n", __func__);
                 switch (resp->status) {
                     case 0:
-                    /* ok, request processed by host SCSI */
+                        /* ok, request processed by host SCSI */
+                        printf("%s: resp->status == 0 (ok, request processed by host SCSI\n", __func__);
                         pkt->pkt_scbp[0] = STATUS_GOOD;
                         break;
                     default:
+                        printf("%s: resp->status != 0, in default:\n", __func__);
                         ((struct scsi_status *)pkt->pkt_scbp)->sts_chk = 1;
                         if (pkt->pkt_cdbp[0] != SCMD_TEST_UNIT_READY) {
+                            printf("%s: pkt->pkt_cdbp[0] !+ SCMD_TEST_UNIT_READY, messing with arq\n", __func__);
+
                             pkt->pkt_state |= STATE_ARQ_DONE;
                             arqstat = (void *)(pkt->pkt_scbp);
                             arqstat->sts_rqpkt_reason = CMD_CMPLT;
@@ -619,25 +626,71 @@ uint_t vioscsi_intr_handler(caddr_t arg1, caddr_t arg2) {
                             arqstat->sts_rqpkt_state = STATE_GOT_BUS | STATE_GOT_TARGET | STATE_SENT_CMD | STATE_XFERRED_DATA;
                             *(uint8_t *)&arqstat->sts_rqpkt_status = STATUS_GOOD;
                             (void) memcpy(&arqstat->sts_sensedata, resp->sense, resp->sense_len);
+                            printf("%s: resp->status == 0 (messing with arq completed)\n", __func__);
                         }
                 }
                 pkt->pkt_resid = 0;
                 pkt->pkt_state |= STATE_XFERRED_DATA;
+                printf("%s: setting pkt->pkt_reason = CMD_CMPLT\n", __func__);
                 pkt->pkt_reason = CMD_CMPLT;
+                break;
 
+            case VIRTIO_SCSI_S_OVERRUN:
+                printf("%s: resp->response is VIRTIO_SCSI_S_OVERRUN\n", __func__);
+                break;
+            case VIRTIO_SCSI_S_ABORTED:
+                printf("%s: resp->response is VIRTIO_SCSI_S_ABORTED\n", __func__);
+                break;
+            case VIRTIO_SCSI_S_BAD_TARGET:
+                printf("%s: resp->response is VIRTIO_SCSI_S_BAD_TARGET\n", __func__);
+                break;
+            case VIRTIO_SCSI_S_RESET:
+                printf("%s: resp->response is VIRTIO_SCSI_S_RESET\n", __func__);
+                break;
+            case VIRTIO_SCSI_S_BUSY:
+                printf("%s: resp->response is VIRTIO_SCSI_S_BUSY\n", __func__);
+                break;
+            case VIRTIO_SCSI_S_TRANSPORT_FAILURE:
+                printf("%s: resp->response is VIRTIO_SCSI_S_TRANSPORT_FAILURE\n", __func__);
+                break;
+            case VIRTIO_SCSI_S_TARGET_FAILURE:
+                printf("%s: resp->response is VIRTIO_SCSI_S_TARGET_FAILURE\n", __func__);
+                break;
+            case VIRTIO_SCSI_S_NEXUS_FAILURE:
+                printf("%s: resp->response is VIRTIO_SCSI_S_NEXUS_FAILURE\n", __func__);
+                break;
+            case VIRTIO_SCSI_S_FAILURE:
+                printf("%s: resp->response is VIRTIO_SCSI_S_FAILURE\n", __func__);
+                break;
+            case VIRTIO_SCSI_S_FUNCTION_SUCCEEDED:
+                printf("%s: resp->response is VIRTIO_SCSI_S_FUNCTION_SUCCEEDED\n", __func__);
+                break;
+            case VIRTIO_SCSI_S_FUNCTION_REJECTED:
+                printf("%s: resp->response is VIRTIO_SCSI_S_REJECTED\n", __func__);
+                break;
+            case VIRTIO_SCSI_S_INCORRECT_LUN:
+                printf("%s: resp->response is VIRTIO_SCSI_S_INCORRECT_LUN\n", __func__);
+                pkt->pkt_reason = CMD_
                 break;
             default:
+                printf("%s: setting pkt->pkt_reason = CMD_TRAN_ERR\n", __func__);
                 pkt->pkt_reason = CMD_TRAN_ERR;
         }
         /* if packet is processed in polling mode - notify the caller that it may done */
         /* no races, because in this case we are not invoked by virtio interrupt */
+        printf("%s: notifying caller that req->polling_done = 1 (ok to stop polling)\n", __func__);
         req->polling_done = 1;
 
+        printf("%s: calling scsi_jba_pkt_comp(pkt)\n", __func__);
         scsi_hba_pkt_comp(pkt);
 
+        printf("%s: calling virtio_free_chain(ve)\n", __func__);
         virtio_free_chain(ve);
+
+        loop_cnt++;
     }
-    printf("%s: while loop complete\n", __func__);
+
+    printf("%s: while loop complete (looped %d times)\n", __func__, loop_cnt);
     printf("%s: returning DDI_INTR_CLAIMED\n", __func__);
     return (DDI_INTR_CLAIMED);
 }
@@ -661,13 +714,6 @@ static int vioscsi_register_ints(struct vioscsi_softc *sc) {
 // RIGHT HERE!
 static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
     printf("%s: called\n", __func__);
-    //if (pkt->pkt_flags & (1 << FLAG_NOINTR)) {
-    //    printf("%s: we have FLAG_NOINTR\n", __func__);
-    //} else {
-    //    printf("%s: no FLAG_NOINTR\n", __func__);
-    //}
-
-
 
     /*
      * these are the cmd structures
@@ -887,6 +933,7 @@ static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
 
 
     if (pkt->pkt_flags & FLAG_NOINTR) {
+
         printf("%s: we have a FLAG_NOINTR in pkt_flags\n", __func__);
         /* disable interrupts for a while */
         virtio_stop_vq_intr(sc->sc_request_vq);
@@ -895,12 +942,14 @@ static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
         while (req->polling_done == 0) {
             printf("%s: req->polling_done == 0, so looping, and calling vioscsi_intr_handler\n", __func__);
             (void) vioscsi_intr_handler((caddr_t)&sc->sc_virtio, NULL);
-            drv_usecwait(100);
+            drv_usecwait(10);
         }
         printf("%s: polling is done, calling virtio_start_vq_intr\n", __func__);
         req->polling_done = 0;
         virtio_start_vq_intr(sc->sc_request_vq);
+
     } else {
+
         printf("%s: we do not have a FLAG_NOINTR in pkt_flags\n", __func__);
         /* disable interrupts for a while */
         virtio_stop_vq_intr(sc->sc_request_vq);
@@ -909,11 +958,12 @@ static int vioscsi_tran_start(struct scsi_address *ap, struct scsi_pkt *pkt) {
         while (req->polling_done == 0) {
             printf("%s: req->polling_done == 0, so looping, and calling vioscsi_intr_handler\n", __func__);
             (void) vioscsi_intr_handler((caddr_t)&sc->sc_virtio, NULL);
-            drv_usecwait(100);
+            drv_usecwait(10);
         }
         printf("%s: polling is done, calling virtio_start_vq_intr\n", __func__);
         req->polling_done = 0;
         virtio_start_vq_intr(sc->sc_request_vq);
+
     }
 
 
